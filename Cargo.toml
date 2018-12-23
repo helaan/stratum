@@ -7,8 +7,12 @@ authors = ["Henk van der Laan <opensource@henkvdlaan.com>"]
 # Web framework
 actix = "0.7"
 actix-web = "0.7"
+# Password hashing library
+argon2rs = "0.2.5"
 # Database ORM and Query Builder
 diesel = { version = "1.3", features = ["postgres"] }
+# Configuration library
+dotenv = "0.13"
 # Serialization library
 serde = "1.0"
 serde_derive = "1.0"
@@ -17,3 +21,5 @@ toml = "0.4"
 ## BAD STUFF
 # Pin Ring to slightly older for Rust 1.29.1 support
 ring = "=0.13.3"
+# Pin trust-dns-resolver as well
+trust-dns-resolver = "=0.10.0"
