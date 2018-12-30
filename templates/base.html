@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% block head %}
+	<meta charset="UTF-8">
+	<title>{% block title %}{% endblock title %} - Calamaris</title>
+	{% endblock head %}
+</head>
+<body>
+	<div id="content">
+		{% block content %}
+		{% endblock content %}
+	</div>
+	<div id="footer">
+		{% block footer %}
+		Page rendered at {{ now() | date(format="%d-%m-%Y %T") }}
+		{% endblock footer %}
+	</div>
+</body>
+</html>
