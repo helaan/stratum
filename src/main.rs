@@ -45,6 +45,7 @@ fn main() {
 
         App::with_state(state)
             .middleware(Logger::default())
+            .route("/admin/team/", http::Method::GET, controllers::team::index)
             .route("/admin/team/new", http::Method::GET, controllers::team::create_form)
             .route("/admin/team/new", http::Method::POST, controllers::team::create)
     };

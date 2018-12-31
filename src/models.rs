@@ -1,12 +1,11 @@
-use std::time::SystemTime;
-use crate::schema::teams;
+use chrono::{DateTime, Utc};
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize)]
 pub struct Team {
     pub id: i64,
     pub name: String,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Queryable)]
@@ -15,6 +14,6 @@ pub struct User {
     pub username: String,
     pub password_hash: String,
     pub rights: i16,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Create Team{% endblock title %}
+{% block content %}
+<h1>Teams</h1>
+<table>
+	<thead>
+		<tr>
+			<td>Id</td>
+			<td>Name</td>
+			<td>Created at</td>
+			<td>Updated at</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for team in teams %}
+		<tr>
+			<td>{{ team.id }}</td>
+			<td>{{ team.name }}</td>
+			<td>{{ team.created_at }}</td>
+			<td>{{ team.updated_at }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<a href="/admin/team/new">Create team</a>
+
+{% endblock content %}

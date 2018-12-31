@@ -2,8 +2,8 @@ table! {
     teams (id) {
         id -> Int8,
         name -> Varchar,
-        created_at -> Nullable<Timestamptz>,
-        updated_at -> Nullable<Timestamptz>,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
@@ -14,8 +14,8 @@ table! {
         username -> Varchar,
         password_hash -> Varchar,
         rights -> Nullable<Int2>,
-        created_at -> Nullable<Timestamptz>,
-        updated_at -> Nullable<Timestamptz>,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
