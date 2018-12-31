@@ -1,4 +1,5 @@
 use std::time::SystemTime;
+use crate::schema::teams;
 
 #[derive(Queryable)]
 pub struct Team {
