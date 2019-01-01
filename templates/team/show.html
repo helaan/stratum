@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Team {{team.name}}{% endblock title %}
+{% block content %}
+<h1>Team {{team.name}}</h1>
+
+<form action="/admin/team/{{team.id}}" mnthod="POST">
+	<p>Id: {{team.id}}</p>
+
+	<label for="name">Teamname: </label>
+	<input type="text" name="name" id="name" value="{{team.name}}">
+
+	<p>Created at: {{team.created_at}}</p>
+	<p>Updated at: {{team.updated_at}}</p>
+
+	<input type="submit" value="Edit team">
+</form>
+
+<a href="/admin/team">Team overview</a>
+
+{% endblock content %}
+

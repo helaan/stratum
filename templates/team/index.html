@@ -15,7 +15,7 @@
 		{% for team in teams %}
 		<tr>
 			<td>{{ team.id }}</td>
-			<td>{{ team.name }}</td>
+			<td><a href="/admin/team/{{team.id}}">{{ team.name }}</a></td>
 			<td>{{ team.created_at }}</td>
 			<td>{{ team.updated_at }}</td>
 		</tr>

@@ -4,7 +4,7 @@
 //! - Edit teams
 //! - Remove teams
 
-use actix_web::{error, AsyncResponder, Error, Form, HttpRequest, Responder};
+use actix_web::{error, AsyncResponder, Error, Form, HttpRequest, Path, Responder};
 use actix::prelude::*;
 use crate::{AppState, util::render};
 use crate::database::{Execute, DbExecutor};
@@ -70,9 +70,25 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     }).responder()
 }
 
-//pub fn show(req: HttpRequest<AppState>) -> FutureResponse<HttpResponse> {
-//   
-//}
+#[derive(Deserialize)]
+pub struct IdParams {
+    id: i64
+}
+
+pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responder {
+    req.state().db.send(Execute::new(move |s| -> Result<Team, Error> {
+        let conn = s.get_conn()?;
+        teams::dsl::teams.find(params.id).get_result::<Team>(&conn)
+            .map_err(|e| error::ErrorInternalServerError(e))
+    })).from_err().and_then(move |res| match res {
+        Ok(team) => {
+            let mut ctx = Context::new();
+            ctx.insert("team", &team);
+            render(req.state(), "team/show.html", &ctx)
+        },
+        Err(e) => Err(e)
+    }).responder()
+}
 
 pub fn edit() {
 
