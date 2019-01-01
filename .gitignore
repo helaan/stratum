@@ -1,2 +1,6 @@
 /target
 **/*.rs.bk
+# Vim swap files
+*.swp
+# File containing environment secrets
+.env
