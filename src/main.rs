@@ -49,6 +49,7 @@ fn main() {
             .route("/admin/team/new", http::Method::GET, controllers::team::create_form)
             .route("/admin/team/new", http::Method::POST, controllers::team::create)
             .route("/admin/team/{id:\\d+}", http::Method::GET, controllers::team::show)
+            .route("/admin/team/{id:\\d+}", http::Method::POST, controllers::team::edit)
     };
 
     server::new(app)

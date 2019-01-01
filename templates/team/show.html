@@ -3,14 +3,26 @@
 {% block content %}
 <h1>Team {{team.name}}</h1>
 
-<form action="/admin/team/{{team.id}}" mnthod="POST">
-	<p>Id: {{team.id}}</p>
+<form action="/admin/team/{{team.id}}" method="POST">
+	<label for="id">Id:</label>
+	<input readonly type="text" name="id" id="id" value="{{team.id}}">
 
-	<label for="name">Teamname: </label>
+	<br>
+
+	<label for="name">Teamname:</label>
 	<input type="text" name="name" id="name" value="{{team.name}}">
+	
+	<br>
 
-	<p>Created at: {{team.created_at}}</p>
-	<p>Updated at: {{team.updated_at}}</p>
+	<label for="created_at">Created At:</label>
+	<input readonly type="text" name="created_at" id="created_at" value="{{team.created_at}}">
+	
+	<br>
+	
+	<label for="updated_at">Updated At:</label>
+	<input readonly type="text" name="updated_at" id="updated_at" value="{{team.updated_at}}">
+	
+	<br>
 
 	<input type="submit" value="Edit team">
 </form>

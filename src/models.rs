@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
+use crate::schema::*;
 
-#[derive(Queryable, Serialize)]
+#[derive(AsChangeset, Identifiable, Queryable, Serialize, Deserialize)]
+#[table_name = "teams"]
 pub struct Team {
     pub id: i64,
     pub name: String,

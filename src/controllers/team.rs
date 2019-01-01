@@ -90,8 +90,22 @@ pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responde
     }).responder()
 }
 
-pub fn edit() {
-
+pub fn edit(req: HttpRequest<AppState>, params: Path<IdParams>, form: Form<Team>) -> impl Responder {
+    let team = form.into_inner();
+    req.state().db.send(Execute::new(move |s| -> Result<usize, Error> {
+        let conn = s.get_conn()?;
+        if team.id != params.id {
+            return Err(error::ErrorBadRequest(format!(
+                        "Attempted to update different team, expected {}, was given {}", team.id, params.id)));
+        }
+        diesel::update(&team).set(&team).execute(&conn)
+            .map_err(|e| error::ErrorInternalServerError(e))
+    })).from_err().and_then(move |res| match res {
+        Ok(rows) => {
+            Ok(format!("Updated {} team", rows))
+        },
+        Err(e) => Err(e)
+    }).responder()
 }
 
 pub fn destroy() {
