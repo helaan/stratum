@@ -1,7 +1,7 @@
 use actix::prelude::*;
 use actix_web::{error, Error};
-use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool, PoolError, PooledConnection};
+use diesel::PgConnection;
 use std::marker::Send;
 
 type DbPool = Pool<ConnectionManager<PgConnection>>;

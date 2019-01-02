@@ -2,21 +2,24 @@
 // See https://github.com/diesel-rs/diesel/issues/1785
 #![allow(proc_macro_derive_resolution_fallback)]
 
-#[macro_use] extern crate log;
-#[macro_use] extern crate diesel;
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate serde_derive;
 
-use std::env;
 use actix::prelude::*;
-use actix_web::{http,App,HttpRequest,server};
 use actix_web::middleware::Logger;
+use actix_web::{http, server, App};
 use dotenv::dotenv;
-use tera::{Tera, compile_templates};
+use std::env;
+use tera::{compile_templates, Tera};
 
+mod controllers;
 mod database;
 mod models;
 mod schema;
-mod controllers;
 mod util;
 
 pub struct AppState {
@@ -46,17 +49,29 @@ fn main() {
         App::with_state(state)
             .middleware(Logger::default())
             .route("/admin/team", http::Method::GET, controllers::team::index)
-            .route("/admin/team/new", http::Method::GET, controllers::team::create_form)
-            .route("/admin/team/new", http::Method::POST, controllers::team::create)
-            .route("/admin/team/{id:\\d+}", http::Method::GET, controllers::team::show)
-            .route("/admin/team/{id:\\d+}", http::Method::POST, controllers::team::edit)
+            .route(
+                "/admin/team/new",
+                http::Method::GET,
+                controllers::team::create_form,
+            )
+            .route(
+                "/admin/team/new",
+                http::Method::POST,
+                controllers::team::create,
+            )
+            .route(
+                "/admin/team/{id:\\d+}",
+                http::Method::GET,
+                controllers::team::show,
+            )
+            .route(
+                "/admin/team/{id:\\d+}",
+                http::Method::POST,
+                controllers::team::edit,
+            )
     };
 
-    server::new(app)
-        .bind("127.0.0.1:8008")
-        .unwrap()
-        .start();
+    server::new(app).bind("127.0.0.1:8008").unwrap().start();
 
     let _ = system.run();
 }
-
