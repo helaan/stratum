@@ -33,7 +33,7 @@ pub struct CreateTeam {
 
 pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
     let ctx = Context::new();
-    render(req.state(), "team/create.html", &ctx)
+    render(req.state(), "admin/team/create.html", &ctx)
 }
 
 pub fn create(req: HttpRequest<AppState>, form: Form<CreateTeam>) -> impl Responder {
@@ -70,7 +70,7 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
             Ok(teams) => {
                 let mut ctx = Context::new();
                 ctx.insert("teams", &teams);
-                render(req.state(), "team/index.html", &ctx)
+                render(req.state(), "admin/team/index.html", &ctx)
             }
             Err(e) => Err(e),
         })
@@ -97,7 +97,7 @@ pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responde
             Ok(team) => {
                 let mut ctx = Context::new();
                 ctx.insert("team", &team);
-                render(req.state(), "team/show.html", &ctx)
+                render(req.state(), "admin/team/show.html", &ctx)
             }
             Err(e) => Err(e),
         })

@@ -46,7 +46,7 @@ fn main() {
 
         App::with_state(state)
             .middleware(Logger::default())
-            .scope("/admin", controllers::register)
+            .scope("/", controllers::register)
     };
 
     server::new(app).bind("127.0.0.1:8008").unwrap().start();
