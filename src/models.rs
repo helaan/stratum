@@ -1,5 +1,6 @@
 use crate::schema::*;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 #[derive(AsChangeset, Identifiable, Queryable, Serialize, Deserialize, Debug)]
 #[table_name = "teams"]

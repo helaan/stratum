@@ -4,36 +4,21 @@
 //! - Edit teams
 //! - Remove teams (TODO)
 
-use crate::database::{DbExecutor, Execute};
+use crate::database::Execute;
 use crate::models::Team;
 use crate::schema::teams;
 use crate::{util::render, AppState};
-use actix::prelude::*;
 use actix_web::{error, AsyncResponder, Error, Form, HttpRequest, Path, Responder};
 use diesel::prelude::*;
+use diesel::Insertable;
 use futures::future::Future;
-use std::ops::Deref;
+use serde::Deserialize;
 use tera::Context;
 
 #[derive(Deserialize, Insertable)]
 #[table_name = "teams"]
 pub struct CreateTeam {
     name: String,
-}
-
-impl Message for CreateTeam {
-    type Result = Result<(), actix_web::Error>;
-}
-
-impl Handler<CreateTeam> for DbExecutor {
-    type Result = Result<(), actix_web::Error>;
-    fn handle(&mut self, team: CreateTeam, _: &mut Self::Context) -> Self::Result {
-        diesel::insert_into(teams::table)
-            .values(&team)
-            .execute(self.get_conn()?.deref())
-            .map(|_| ())
-            .map_err(|_| error::ErrorInternalServerError("Error inserting team"))
-    }
 }
 
 pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
