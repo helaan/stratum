@@ -9,12 +9,22 @@ use crate::models::{Team, User};
 use crate::pass::hash;
 use crate::schema::{teams, users};
 use crate::{util::render, AppState};
-use actix_web::{error, AsyncResponder, Error, Form, HttpRequest, Path, Responder};
+use actix_web::{
+    error, http::Method, AsyncResponder, Error, Form, HttpRequest, Path, Responder, Scope,
+};
 use diesel::prelude::*;
 use diesel::{AsChangeset, Insertable};
 use futures::future::Future;
 use serde::Deserialize;
 use tera::Context;
+
+pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
+    scop.route("", Method::GET, index)
+        .route("/new", Method::GET, create_form)
+        .route("/new", Method::POST, create)
+        .route("/{id:\\d+}", Method::GET, show)
+        .route("/{id:\\d+}", Method::POST, edit)
+}
 
 #[derive(Insertable)]
 #[table_name = "users"]

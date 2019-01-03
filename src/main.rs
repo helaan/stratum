@@ -8,7 +8,7 @@ extern crate diesel;
 
 use actix::prelude::*;
 use actix_web::middleware::Logger;
-use actix_web::{http, server, App};
+use actix_web::{server, App};
 use dotenv::dotenv;
 use std::env;
 use tera::{compile_templates, Tera};
@@ -46,48 +46,7 @@ fn main() {
 
         App::with_state(state)
             .middleware(Logger::default())
-            .route("/admin/team", http::Method::GET, controllers::team::index)
-            .route(
-                "/admin/team/new",
-                http::Method::GET,
-                controllers::team::create_form,
-            )
-            .route(
-                "/admin/team/new",
-                http::Method::POST,
-                controllers::team::create,
-            )
-            .route(
-                "/admin/team/{id:\\d+}",
-                http::Method::GET,
-                controllers::team::show,
-            )
-            .route(
-                "/admin/team/{id:\\d+}",
-                http::Method::POST,
-                controllers::team::edit,
-            )
-            .route("/admin/user", http::Method::GET, controllers::user::index)
-            .route(
-                "/admin/user/new",
-                http::Method::GET,
-                controllers::user::create_form,
-            )
-            .route(
-                "/admin/user/new",
-                http::Method::POST,
-                controllers::user::create,
-            )
-            .route(
-                "/admin/user/{id:\\d+}",
-                http::Method::GET,
-                controllers::user::show,
-            )
-            .route(
-                "/admin/user/{id:\\d+}",
-                http::Method::POST,
-                controllers::user::edit,
-            )
+            .scope("/admin", controllers::register)
     };
 
     server::new(app).bind("127.0.0.1:8008").unwrap().start();

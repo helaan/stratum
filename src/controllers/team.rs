@@ -8,12 +8,22 @@ use crate::database::Execute;
 use crate::models::Team;
 use crate::schema::teams;
 use crate::{util::render, AppState};
-use actix_web::{error, AsyncResponder, Error, Form, HttpRequest, Path, Responder};
+use actix_web::{
+    error, http::Method, AsyncResponder, Error, Form, HttpRequest, Path, Responder, Scope,
+};
 use diesel::prelude::*;
 use diesel::Insertable;
 use futures::future::Future;
 use serde::Deserialize;
 use tera::Context;
+
+pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
+    scop.route("", Method::GET, index)
+        .route("/new", Method::GET, create_form)
+        .route("/new", Method::POST, create)
+        .route("/{id:\\d+}", Method::GET, show)
+        .route("/{id:\\d+}", Method::POST, edit)
+}
 
 #[derive(Deserialize, Insertable)]
 #[table_name = "teams"]
