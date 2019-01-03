@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}User {{user.username}}{% endblock title %}
+{% block content %}
+<h1>Team {{user.username}}</h1>
+
+<form action="/admin/user/{{user.id}}" method="POST">
+	<label for="id">Id:</label>
+	<input disabled type="text" name="id" id="id" value="{{user.id}}">
+
+	<br>
+	
+	<label for="user_id">Team id: </label>
+	<input type="text" name="team_id" id="team_id" value="{{user.team_id}}" autofocus>
+
+	<br>
+
+	<label for="username">Username: </label>
+	<input type="text" name="username" id="username" value="{{user.username}}" autofocus>
+
+	<br>
+	
+	<label for="password_hash">Password: (Leave empty to keep current pass) </label>
+	<input type="text" name="password" id="password" value="" autofocus>
+
+	{#<p>Current hash: {{user.password_hash}}</p>#}
+
+	<br>
+	
+	<label for="rights">Rights: </label>
+	<input type="text" name="rights" id="rights" value="{{user.rights}}" autofocus>
+
+	<br>
+
+	<label for="created_at">Created At:</label>
+	<input disabled type="text" name="created_at" id="created_at" value="{{user.created_at}}">
+	
+	<br>
+	
+	<label for="updated_at">Updated At:</label>
+	<input disabled type="text" name="updated_at" id="updated_at" value="{{user.updated_at}}">
+	
+	<br>
+
+	<input type="submit" value="Edit user">
+</form>
+
+<a href="/admin/user">User overview</a>
+
+{% endblock content %}
+

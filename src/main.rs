@@ -19,6 +19,7 @@ use tera::{compile_templates, Tera};
 mod controllers;
 mod database;
 mod models;
+mod pass;
 mod schema;
 mod util;
 
@@ -68,6 +69,27 @@ fn main() {
                 "/admin/team/{id:\\d+}",
                 http::Method::POST,
                 controllers::team::edit,
+            )
+            .route("/admin/user", http::Method::GET, controllers::user::index)
+            .route(
+                "/admin/user/new",
+                http::Method::GET,
+                controllers::user::create_form,
+            )
+            .route(
+                "/admin/user/new",
+                http::Method::POST,
+                controllers::user::create,
+            )
+            .route(
+                "/admin/user/{id:\\d+}",
+                http::Method::GET,
+                controllers::user::show,
+            )
+            .route(
+                "/admin/user/{id:\\d+}",
+                http::Method::POST,
+                controllers::user::edit,
             )
     };
 

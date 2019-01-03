@@ -10,6 +10,7 @@ actix = "0.7"
 actix-web = "0.7"
 # Password hashing library
 argon2rs = "0.2.5"
+rand = "0.6"
 # Timezone library
 chrono = { version = "0.4", features = ["serde"] }
 # Database ORM and Query Builder

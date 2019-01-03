@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock title %}
+{% block content %}
+<h1>Users</h1>
+<table>
+	<thead>
+		<tr>
+			<td>Id</td>
+			<td>Team name</td>
+			<td>Username</td>
+			<td>Rights</td>
+			<td>Created at</td>
+			<td>Updated at</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for arr in users %}
+		{% set user = arr[0] %}
+		{% set team = arr[1] %}
+		<tr>
+			<td>{{ user.id }}</td>
+			<td>{% if team %}<a href="/admin/team/{{team.id}}">{{team.name}}</a>{% endif %}</td>
+			<td><a href="/admin/user/{{user.id}}">{{ user.username }}</a></td>
+			<td>{{ user.rights }}</td>
+			<td>{{ user.created_at }}</td>
+			<td>{{ user.updated_at }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<a href="/admin/user/new">Create User</a>
+
+{% endblock content %}

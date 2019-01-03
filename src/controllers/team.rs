@@ -2,7 +2,7 @@
 //! - Create teams
 //! - Show teams
 //! - Edit teams
-//! - Remove teams
+//! - Remove teams (TODO)
 
 use crate::database::{DbExecutor, Execute};
 use crate::models::Team;
@@ -138,4 +138,4 @@ pub fn edit(
         .responder()
 }
 
-pub fn destroy() {}
+//pub fn destroy() {}

@@ -13,7 +13,7 @@ table! {
         team_id -> Nullable<Int8>,
         username -> Varchar,
         password_hash -> Varchar,
-        rights -> Nullable<Int2>,
+        rights -> Int2,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
     }
@@ -21,7 +21,4 @@ table! {
 
 joinable!(users -> teams (team_id));
 
-allow_tables_to_appear_in_same_query!(
-    teams,
-    users,
-);
+allow_tables_to_appear_in_same_query!(teams, users,);

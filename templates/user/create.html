@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Create User{% endblock title %}
+{% block content %}
+<h1>Create new user</h1>
+<form action="/admin/user/new" method="POST">
+	<label for="team_id">Team_id: </label>
+	<input type="text" name="team_id" id="team_id" value="" autofocus>
+
+	<br>
+	
+	<label for="username">Username: </label>
+	<input type="text" name="username" id="username" value="" autofocus>
+
+	<br>
+	
+	<label for="password">Password: </label>
+	<input type="text" name="password" id="password" value="" autofocus>
+
+	<br>
+	
+	<label for="rights">Rights: </label>
+	<input type="text" name="rights" id="rights" value="1" autofocus>
+
+	<br>
+	
+	<input type="submit" value="Add user">
+</form>
+{% endblock content %}
