@@ -8,7 +8,7 @@ extern crate diesel;
 
 use actix::prelude::*;
 use actix_web::middleware::Logger;
-use actix_web::{server, App};
+use actix_web::{fs, server, App};
 use dotenv::dotenv;
 use std::env;
 use tera::{compile_templates, Tera};
@@ -46,6 +46,7 @@ fn main() {
 
         App::with_state(state)
             .middleware(Logger::default())
+            .handler("/static", fs::StaticFiles::new("./static").unwrap())
             .scope("/", controllers::register)
     };
 
