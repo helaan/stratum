@@ -29,8 +29,8 @@ pub struct AppState {
 fn main() {
     dotenv().ok();
     env_logger::init();
-    log::debug!("Calamaris starting...");
-    let system = actix::System::new("calamaris");
+    log::debug!("Stratum starting...");
+    let system = actix::System::new("stratum");
 
     // Database initialization
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");

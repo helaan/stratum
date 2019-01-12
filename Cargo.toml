@@ -1,5 +1,5 @@
 [package]
-name = "calamaris"
+name = "stratum"
 version = "0.1.0"
 authors = ["Henk van der Laan <opensource@henkvdlaan.com>"]
 edition = "2018"

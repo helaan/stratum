@@ -3,7 +3,7 @@
 <head>
 	{% block head %}
 	<meta charset="UTF-8">
-	<title>{% block title %}{% endblock title %} - Calamaris</title>
+	<title>{% block title %}{% endblock title %} - Stratum</title>
 	<script src="/static/turbolinks-5.2.0.js"></script>
 	<link rel="stylesheet" href="/static/tachyons-4.11.2.min.css">
 	{% endblock head %}
@@ -36,11 +36,11 @@
 		{% block content %}
 		{% endblock content %}
 	</div>
-	<div class="h2 absolute bottom-0 w-100 pt3" id="footer">
+	<div class="h2 absolute bottom-0 w-100 pt2" id="footer">
 		<div class="center mw9">
 			<span>
 			{% block footer %}
-			Page rendered at {{ now() | date(format="%d-%m-%Y %T") }}
+			Page rendered at {{ now() | date(format="%d-%m-%Y %T") }} by Stratum {{ app_version }}
 			{% endblock footer %}
 			</span>
 		</div>

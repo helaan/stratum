@@ -14,6 +14,7 @@ pub fn render(
 ) -> Result<HttpResponse, actix_web::Error> {
     ctx.insert("active_user", &req.extensions().get::<User>());
     ctx.insert("active_team", &req.extensions().get::<Team>());
+    ctx.insert("app_version", env!("CARGO_PKG_VERSION"));
     let s = req.state()
         .template
         .render(tpl, &ctx)
