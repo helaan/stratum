@@ -15,7 +15,8 @@ pub fn render(
     ctx.insert("active_user", &req.extensions().get::<User>());
     ctx.insert("active_team", &req.extensions().get::<Team>());
     ctx.insert("app_version", env!("CARGO_PKG_VERSION"));
-    let s = req.state()
+    let s = req
+        .state()
         .template
         .render(tpl, &ctx)
         .map_err(|e| error::ErrorInternalServerError(e.description().to_owned()))?;

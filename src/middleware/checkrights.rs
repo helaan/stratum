@@ -1,7 +1,7 @@
-use actix_web::{HttpRequest, Error, error};
-use actix_web::middleware::{Middleware, Started};
-use crate::AppState;
 use crate::models::User;
+use crate::AppState;
+use actix_web::middleware::{Middleware, Started};
+use actix_web::{error, Error, HttpRequest};
 
 /** CheckRights ensures that there is an user accessing this page and that the
  * user is permitted to access this page.
@@ -28,6 +28,5 @@ impl Middleware<AppState> for CheckRights {
         } else {
             Err(error::ErrorNotFound(""))
         }
-
     }
 }
