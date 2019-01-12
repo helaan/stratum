@@ -24,10 +24,12 @@
 				<a class="black ph3 link" href="/admin">Admin Panel</a>
 				{% endif %}
 				{% endblock %}
-				<span>{{ active_user.username }}</span>
-				<a class="black ph3 link" href="/session/logout">Log out</a>
+				<span class="ph3 black">{{ active_user.username }}</span>
+				<form class="ph3 di" action="/session/logout" method="POST">
+					<input class="input-reset button-reset bn bg-inherit black pointer" type="submit" value="Log out">
+				</form>
 			{% else %}
-				<a class="black ph3 link" href="/login">Log in</a>
+				<a class="black ph3 link" href="/session/login">Log in</a>
 			{% endif %}
 			</div>
 		</nav>

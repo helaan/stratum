@@ -19,6 +19,7 @@ use uuid::Uuid;
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
     scop.route("/login", Method::GET, login_form)
         .route("/login", Method::POST, login)
+        .route("/logout", Method::POST, logout)
 }
 
 pub fn login_form(req: HttpRequest<AppState>) -> impl Responder {
@@ -67,4 +68,9 @@ pub fn login(req: HttpRequest<AppState>, form: Form<LoginForm>) -> impl Responde
         }
         Err(e) => Err(e)
     }).responder()
+}
+
+pub fn logout(req: HttpRequest<AppState>) -> impl Responder {
+    req.session().remove("key");
+    "logged out successfully"
 }
