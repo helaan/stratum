@@ -5,17 +5,45 @@
 	<meta charset="UTF-8">
 	<title>{% block title %}{% endblock title %} - Calamaris</title>
 	<script src="/static/turbolinks-5.2.0.js"></script>
+	<link rel="stylesheet" href="/static/tachyons-4.11.2.min.css">
 	{% endblock head %}
 </head>
-<body>
-	<div id="content">
+<body class="bg-near-white sans-serif min-vh-100 relative">
+	<header class="bg-light-gray cf w-100 ph3 pv3 bb">
+		<nav class="f5 center mw9">
+			<div class="fl v-mid w-50">
+			{% block top_menu_left %}
+				<a class="black ph3 link" href="/">Scoreboard</a>
+				<a class="black ph3 link" href="/submit">Submit</a>
+			{% endblock top_menu_left %}
+			</div>
+			<div class="fl v-mid w-50 tr-ns">
+			{% if active_user %}
+				{% block top_menu_right %}
+				{% if active_user.rights >= 1000 %}
+				<a class="black ph3 link" href="/admin">Admin Panel</a>
+				{% endif %}
+				{% endblock %}
+				<span>{{ active_user.username }}</span>
+				<a class="black ph3 link" href="/session/logout">Log out</a>
+			{% else %}
+				<a class="black ph3 link" href="/login">Log in</a>
+			{% endif %}
+			</div>
+		</nav>
+	</header>
+	<div class="{% if layout_pagewidth %}{{ layout_pagewidth }}{% else %}mw9{% endif %} center pb4" id="content">
 		{% block content %}
 		{% endblock content %}
 	</div>
-	<div id="footer">
-		{% block footer %}
-		Page rendered at {{ now() | date(format="%d-%m-%Y %T") }}
-		{% endblock footer %}
+	<div class="h2 absolute bottom-0 w-100 pt3" id="footer">
+		<div class="center mw9">
+			<span>
+			{% block footer %}
+			Page rendered at {{ now() | date(format="%d-%m-%Y %T") }}
+			{% endblock footer %}
+			</span>
+		</div>
 	</div>
 </body>
 </html>

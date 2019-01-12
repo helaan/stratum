@@ -45,7 +45,7 @@ pub struct CreateUserForm {
 
 pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
     let ctx = Context::new();
-    render(req.state(), "admin/user/create.html", &ctx)
+    render(&req, "admin/user/create.html", ctx)
 }
 
 pub fn create(req: HttpRequest<AppState>, form: Form<CreateUserForm>) -> impl Responder {
@@ -92,7 +92,7 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
                 Ok(users) => {
                     let mut ctx = Context::new();
                     ctx.insert("users", &users);
-                    render(req.state(), "admin/user/index.html", &ctx)
+                    render(&req, "admin/user/index.html", ctx)
                 }
                 Err(e) => Err(e),
             },
@@ -120,7 +120,7 @@ pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responde
             Ok(user) => {
                 let mut ctx = Context::new();
                 ctx.insert("user", &user);
-                render(req.state(), "admin/user/show.html", &ctx)
+                render(&req, "admin/user/show.html", ctx)
             }
             Err(e) => Err(e),
         })

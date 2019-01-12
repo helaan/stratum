@@ -8,18 +8,15 @@ use actix_web::{error, HttpRequest, HttpResponse};
 //  - tpl: Path to template string
 //  - ctx: Template context
 pub fn render(
-    state: &AppState,
+    req: &HttpRequest<AppState>,
     tpl: &str,
-    ctx: &tera::Context,
+    mut ctx: tera::Context,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let s = state
+    ctx.insert("active_user", &req.extensions().get::<User>());
+    ctx.insert("active_team", &req.extensions().get::<Team>());
+    let s = req.state()
         .template
         .render(tpl, &ctx)
         .map_err(|e| error::ErrorInternalServerError(e.description().to_owned()))?;
     Ok(HttpResponse::Ok().content_type("text/html").body(s))
-}
-
-pub fn add_user_context(req: &HttpRequest<AppState>, ctx: &mut tera::Context) {
-    ctx.insert("user", &req.extensions().get::<User>());
-    ctx.insert("team", &req.extensions().get::<Team>());
 }

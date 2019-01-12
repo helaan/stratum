@@ -23,7 +23,7 @@ pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
 
 pub fn login_form(req: HttpRequest<AppState>) -> impl Responder {
     let ctx = Context::new();
-    render(req.state(), "session/login.html", &ctx)
+    render(&req, "session/login.html", ctx)
 }
 
 #[derive(Deserialize)]

@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 {% block title %}User {{user.username}}{% endblock title %}
 {% block content %}
-<h1>Team {{user.username}}</h1>
+<h1>User {{user.username}}</h1>
 
 <form action="/admin/user/{{user.id}}" method="POST">
 	<label for="id">Id:</label>
