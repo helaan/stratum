@@ -55,7 +55,7 @@ fn main() {
                     .http_only(true)
                     .secure(cookie_secure),
             ))
-            .middleware(middleware::DataBinder {})
+            .middleware(middleware::databinder::DataBinder {})
             .handler("/static", fs::StaticFiles::new("./static").unwrap())
             .scope("/", controllers::register)
     };
