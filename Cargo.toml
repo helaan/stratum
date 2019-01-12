@@ -14,7 +14,7 @@ rand = "0.6"
 # Timezone library
 chrono = { version = "0.4", features = ["serde"] }
 # Database ORM and Query Builder
-diesel = { version = "1.3", features = ["chrono", "postgres", "r2d2"] }
+diesel = { version = "1.3", features = ["chrono", "postgres", "r2d2", "uuid"] }
 # Configuration library
 dotenv = "0.13"
 # Configuration of logging library
@@ -27,9 +27,4 @@ log = "0.4"
 serde = { version = "1.0", features = ["derive"]}
 # Templating library
 tera = "0.11"
-
-## BAD STUFF
-# Pin Ring to slightly older for Rust 1.29.1 support
-#ring = "=0.13.3"
-# Pin trust-dns-resolver as well
-#trust-dns-resolver = "=0.10.0"
+uuid = { version = "0.6", features = ["serde", "v4"] }

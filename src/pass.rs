@@ -11,3 +11,11 @@ pub fn hash(pass: String) -> String {
     let hash = Encoded::default2i(&pass.as_bytes(), &salt, &empty, &empty).to_u8();
     String::from_utf8(hash).expect("Could not hash password")
 }
+
+pub fn check(hash: &String, submitted: &String) -> Result<bool, String> {
+    let enc = Encoded::from_u8(hash.as_bytes());
+    return match enc {
+        Ok(e) => Ok(e.verify(submitted.as_bytes())),
+        Err(e) => Err(e.to_string()),
+    };
+}

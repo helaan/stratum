@@ -1,5 +1,6 @@
+use crate::models::{Team, User};
 use crate::AppState;
-use actix_web::{error, HttpResponse};
+use actix_web::{error, HttpRequest, HttpResponse};
 
 // Render a page
 // Arguments:
@@ -16,4 +17,9 @@ pub fn render(
         .render(tpl, &ctx)
         .map_err(|e| error::ErrorInternalServerError(e.description().to_owned()))?;
     Ok(HttpResponse::Ok().content_type("text/html").body(s))
+}
+
+pub fn add_user_context(req: &HttpRequest<AppState>, ctx: &mut tera::Context) {
+    ctx.insert("user", &req.extensions().get::<User>());
+    ctx.insert("team", &req.extensions().get::<Team>());
 }

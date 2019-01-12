@@ -7,7 +7,7 @@
 extern crate diesel;
 
 use actix::prelude::*;
-use actix_web::middleware::Logger;
+use actix_web::middleware::{session::*, Logger};
 use actix_web::{fs, server, App};
 use dotenv::dotenv;
 use std::env;
@@ -15,6 +15,7 @@ use tera::{compile_templates, Tera};
 
 mod controllers;
 mod database;
+mod middleware;
 mod models;
 mod pass;
 mod schema;
@@ -36,6 +37,9 @@ fn main() {
     let db_pool = database::create_pool(&db_url).expect("Could not create pool");
     let db_addr = SyncArbiter::start(3, move || database::DbExecutor(db_pool.clone()));
 
+    let cookie_key = env::var("COOKIE_KEY").expect("COOKIE_KEY not set");
+    let cookie_secure = env::var("COOKIE_SECURE").expect("COOKIE_SECURE not set") == "TRUE";
+
     let app = move || {
         let templates = compile_templates!("templates/**/*.html");
 
@@ -46,6 +50,12 @@ fn main() {
 
         App::with_state(state)
             .middleware(Logger::default())
+            .middleware(SessionStorage::new(
+                CookieSessionBackend::private(&cookie_key.as_bytes())
+                    .http_only(true)
+                    .secure(cookie_secure),
+            ))
+            .middleware(middleware::DataBinder {})
             .handler("/static", fs::StaticFiles::new("./static").unwrap())
             .scope("/", controllers::register)
     };
