@@ -15,6 +15,7 @@ use tera::{compile_templates, Tera};
 
 mod controllers;
 mod database;
+mod error_pages;
 mod middleware;
 mod models;
 mod pass;
@@ -50,6 +51,7 @@ fn main() {
 
         App::with_state(state)
             .middleware(Logger::default())
+            .middleware(error_pages::register())
             .middleware(SessionStorage::new(
                 CookieSessionBackend::private(&cookie_key.as_bytes())
                     .http_only(true)
