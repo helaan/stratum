@@ -11,6 +11,7 @@
 			<td>Rights</td>
 			<td>Created at</td>
 			<td>Updated at</td>
+			<td>Last logged in at</td>
 		</tr>
 	</thead>
 	<tbody>
@@ -24,6 +25,13 @@
 			<td>{{ user.rights }}</td>
 			<td>{{ user.created_at }}</td>
 			<td>{{ user.updated_at }}</td>
+			<td>
+				{% if last_login_times[user.id] %}
+					{{ last_login_times[user.id] }}
+				{% else %}
+			    		No logins yet
+				{% endif %}
+			</td>
 		</tr>
 		{% endfor %}
 	</tbody>

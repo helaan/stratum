@@ -7,15 +7,17 @@
 use crate::database::Execute;
 use crate::models::{Team, User};
 use crate::pass::hash;
-use crate::schema::{teams, users};
+use crate::schema::{sessions, teams, users};
 use crate::{util::render, AppState};
 use actix_web::{
     error, http::Method, AsyncResponder, Error, Form, HttpRequest, Path, Responder, Scope,
 };
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
-use diesel::{AsChangeset, Insertable};
+use diesel::{dsl::sql, sql_types::Timestamptz, AsChangeset, Insertable};
 use futures::future::Future;
 use serde::Deserialize;
+use std::collections::HashMap;
 use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
@@ -77,26 +79,32 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
         .send(Execute::new(
-            |s| -> Result<Vec<(User, Option<Team>)>, Error> {
+            |s| -> Result<(Vec<(User, Option<Team>)>, HashMap<i64, DateTime<Utc>>), Error> {
                 let conn = s.get_conn()?;
-                users::dsl::users
+                let users = users::dsl::users
                     .left_join(teams::dsl::teams)
                     .order(users::id.asc())
                     .load(&conn)
-                    .map_err(|e| error::ErrorInternalServerError(e))
+                    .map_err(|e| error::ErrorInternalServerError(e))?;
+                let login_times = sessions::table
+                    .select((sessions::user_id, sql::<Timestamptz>("max(created_at)")))
+                    .group_by(sessions::user_id)
+                    .load(&conn)
+                    .map(|d| d.iter().cloned().collect())
+                    .map_err(|e| error::ErrorInternalServerError(e))?;
+                Ok((users, login_times))
             },
         ))
         .from_err()
-        .and_then(
-            move |res: Result<Vec<(User, Option<Team>)>, Error>| match res {
-                Ok(users) => {
-                    let mut ctx = Context::new();
-                    ctx.insert("users", &users);
-                    render(&req, "admin/user/index.html", ctx)
-                }
-                Err(e) => Err(e),
-            },
-        )
+        .and_then(move |res| match res {
+            Ok((users, last_login_times)) => {
+                let mut ctx = Context::new();
+                ctx.insert("users", &users);
+                ctx.insert("last_login_times", &last_login_times);
+                render(&req, "admin/user/index.html", ctx)
+            }
+            Err(e) => Err(e),
+        })
         .responder()
 }
 
