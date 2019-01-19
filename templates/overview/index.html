@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Scoreboard{% endblock title %}
+{% block content %}
+<h1>Select your contest</h1>
+
+{% if contests | length == 0 %}
+<p>No contests are available right now.</p>
+{% else %}
+	{% for contest in contests %}
+	<p>
+		<a href="/contest/{{ contest.short_name }}">{{ contest.name }}</a>
+		{% if contest.start_at %} starts at {{ contest.start_at }}{% endif -%}
+		{%- if contest.freeze_at %}, freezes at {{ contest.freeze_at }}{% endif -%}
+		{%- if contest.end_at %}, ends at {{ contest.end_at }}{% endif %}
+
+	</p>
+	{% endfor %}
+{% endif %}
+
+{% endblock content %}

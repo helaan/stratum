@@ -1,4 +1,4 @@
-use crate::models::{Team, User};
+use crate::models::{Contest, Team, User};
 use crate::AppState;
 use actix_web::{error, Error, HttpRequest, HttpResponse};
 
@@ -24,6 +24,9 @@ pub fn render_string(
     ctx.insert("active_user", &req.extensions().get::<User>());
     ctx.insert("active_team", &req.extensions().get::<Team>());
     ctx.insert("app_version", env!("CARGO_PKG_VERSION"));
+    if let Some(contest) = &req.extensions().get::<Contest>() {
+        ctx.insert("contest", contest);
+    }
     req.state()
         .template
         .render(tpl, &ctx)

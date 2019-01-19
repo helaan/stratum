@@ -1,0 +1,31 @@
+{% extends "contest/base.html" %}
+{% block title %}Scoreboard{% endblock title %}
+{% block content %}
+<h1>{{ contest.name }}</h1>
+
+<p>Starts at: {{ contest.start_at }}{% if contest.end_at %}, ends at {{ contest.end_at }} {% endif %}</p>
+
+<table class="w-100 collapse ba br2 b--black-10">
+	<thead>
+		<tr class="b">
+			<td class="tl">Rank</td>
+			<td class="tl">Team</td>
+			{% for cproblem in cproblems %}
+				<td class="tc">{{ cproblem.0.label }}</td>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for team in teams %}
+		<tr class="{% if active_team and team.id == active_team.id %}bg-light-yellow{% else %}striped--light-gray{% endif %}">
+			<td class="tl">0{# TODO #}</td>
+			<td class="tl">{{team.name}}</td>
+			{% for cproblem in cproblems %}
+				<td class="tc">0 {# TODO too #}</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% endblock content %}
