@@ -28,18 +28,18 @@ impl Middleware<AppState> for DataBinder {
                 .state()
                 .db
                 .send(Execute::new(
-                    move |s| -> Result<(Session, Option<(User, Option<Team>)>), Error> {
+                    move |s| {
                         let conn = s.get_conn()?;
                         sessions::dsl::sessions
                             .find(key)
                             .left_join(users::dsl::users.left_join(teams::dsl::teams))
-                            .first(&conn)
-                            .map_err(|e| error::ErrorInternalServerError(e))
+                            .first::<(Session, Option<(User, Option<Team>)>)>(&conn)
+                            .map_err(error::ErrorInternalServerError)
                     },
                 ))
                 .from_err()
                 .and_then(
-                    move |res: Result<(Session, Option<(User, Option<Team>)>), Error>| match res {
+                    move |res| match res {
                         Ok(tup) => {
                             if let Some(utup) = tup.1 {
                                 req.extensions_mut().insert(utup.0);

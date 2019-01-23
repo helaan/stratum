@@ -44,7 +44,7 @@ pub fn create(req: HttpRequest<AppState>, form: Form<CreateTeam>) -> impl Respon
             diesel::insert_into(teams::table)
                 .values(&form.into_inner())
                 .execute(&conn)
-                .map_err(|_| error::ErrorInternalServerError("Error inserting team"))
+                .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res| match res {
@@ -62,7 +62,7 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
             teams::dsl::teams
                 .order(teams::id.asc())
                 .load(&conn)
-                .map_err(|e| error::ErrorInternalServerError(e))
+                .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res: Result<Vec<Team>, Error>| match res {
@@ -89,7 +89,7 @@ pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responde
             teams::dsl::teams
                 .find(params.id)
                 .get_result::<Team>(&conn)
-                .map_err(|e| error::ErrorInternalServerError(e))
+                .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res| match res {
@@ -122,7 +122,7 @@ pub fn edit(
             diesel::update(&team)
                 .set(&team)
                 .execute(&conn)
-                .map_err(|e| error::ErrorInternalServerError(e))
+                .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res| match res {

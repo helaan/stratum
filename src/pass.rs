@@ -12,10 +12,10 @@ pub fn hash(pass: String) -> String {
     String::from_utf8(hash).expect("Could not hash password")
 }
 
-pub fn check(hash: &String, submitted: &String) -> Result<bool, String> {
+pub fn check(hash: &str, submitted: &str) -> Result<bool, String> {
     let enc = Encoded::from_u8(hash.as_bytes());
-    return match enc {
+    match enc {
         Ok(e) => Ok(e.verify(submitted.as_bytes())),
         Err(e) => Err(e.to_string()),
-    };
+    }
 }

@@ -65,7 +65,7 @@ pub fn create(req: HttpRequest<AppState>, form: Form<CreateUserForm>) -> impl Re
             diesel::insert_into(users::table)
                 .values(&user)
                 .execute(&conn)
-                .map_err(|_| error::ErrorInternalServerError("Error inserting user"))
+                .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res| match res {
@@ -79,19 +79,19 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
         .send(Execute::new(
-            |s| -> Result<(Vec<(User, Option<Team>)>, HashMap<i64, DateTime<Utc>>), Error> {
+            |s| {
                 let conn = s.get_conn()?;
                 let users = users::dsl::users
                     .left_join(teams::dsl::teams)
                     .order(users::id.asc())
-                    .load(&conn)
-                    .map_err(|e| error::ErrorInternalServerError(e))?;
+                    .load::<(User, Option<Team>)>(&conn)
+                    .map_err(error::ErrorInternalServerError)?;
                 let login_times = sessions::table
                     .select((sessions::user_id, sql::<Timestamptz>("max(created_at)")))
                     .group_by(sessions::user_id)
-                    .load(&conn)
-                    .map(|d| d.iter().cloned().collect())
-                    .map_err(|e| error::ErrorInternalServerError(e))?;
+                    .load::<(i64, DateTime<Utc>)>(&conn)
+                    .map(|d| d.iter().cloned().collect::<HashMap<_,_>>())
+                    .map_err(error::ErrorInternalServerError)?;
                 Ok((users, login_times))
             },
         ))
@@ -121,7 +121,7 @@ pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responde
             users::dsl::users
                 .find(params.id)
                 .get_result::<User>(&conn)
-                .map_err(|e| error::ErrorInternalServerError(e))
+                .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res| match res {
@@ -183,7 +183,7 @@ pub fn edit(
             diesel::update(&user)
                 .set(&user)
                 .execute(&conn)
-                .map_err(|e| error::ErrorInternalServerError(e))
+                .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res| match res {

@@ -16,7 +16,7 @@ pub fn create_pool(db_url: &str) -> Result<DbPool, PoolError> {
 
 impl DbExecutor {
     pub fn get_conn(&self) -> Result<DbConnection, Error> {
-        self.0.get().map_err(|e| error::ErrorInternalServerError(e))
+        self.0.get().map_err(error::ErrorInternalServerError)
     }
 }
 
@@ -61,7 +61,6 @@ where
     E: Send + 'static,
     F: FnOnce(&&mut DbExecutor) -> Result<I, E> + Send + 'static,
 {
-    #[cfg_attr(feature = "cargo-clippy", allow(boxed_local))]
     fn call_box(self: Box<Self>, s: &&mut DbExecutor) -> Result<I, E> {
         (*self)(s)
     }

@@ -37,7 +37,7 @@ pub fn login(req: HttpRequest<AppState>, form: Form<LoginForm>) -> impl Responde
     req.state().db.send(Execute::new(move |s| -> Result<Vec<Session>, Error> {
         let conn = s.get_conn()?;
         let query : Result<Option<User>, diesel::result::Error> = users::dsl::users.filter(users::columns::username.eq(&form.username)).first(&conn).optional();
-        return match query {
+        match query {
             Ok(opt_user) => {
                 // FUTURE: when let_chains stabilize, clean this up
                 if let Some(user) = opt_user {

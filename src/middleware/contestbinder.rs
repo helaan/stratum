@@ -25,7 +25,7 @@ impl Middleware<AppState> for ContestBinder {
                         .filter(lower(contests::short_name).eq(contest_name.to_lowercase()))
                         .first::<Contest>(&conn)
                         .optional()
-                        .map_err(|e| error::ErrorInternalServerError(e))
+                        .map_err(error::ErrorInternalServerError)
                 }))
                 .from_err()
                 .and_then(move |res| match res {

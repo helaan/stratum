@@ -20,7 +20,7 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
             contests::dsl::contests
                 .filter(contests::start_at.is_not_null())
                 .load(&conn)
-                .map_err(|e| error::ErrorInternalServerError(e))
+                .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res| match res {
