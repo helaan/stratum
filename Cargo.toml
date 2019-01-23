@@ -8,6 +8,8 @@ edition = "2018"
 # Web framework
 actix = "0.7"
 actix-web = "0.7"
+# Network bytes library
+bytes = "0.4"
 # Password hashing library
 argon2rs = "0.2.5"
 rand = "0.6"

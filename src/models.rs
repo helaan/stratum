@@ -22,12 +22,22 @@ pub struct Contest {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Queryable, Serialize, Deserialize, Debug)]
+#[derive(Identifiable, Queryable, Serialize, Deserialize, Debug)]
 pub struct Problem {
     pub id: i64,
     pub name: String,
-    pub statement: Option<Vec<u8>>,
-    pub statement_type: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, Debug)]
+#[belongs_to(Problem)]
+pub struct ProblemStatement {
+    pub id: i64,
+    pub problem_id: i64,
+    pub filename: String,
+    pub mimetype: String,
+    pub statement: Vec<u8>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

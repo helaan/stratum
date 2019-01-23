@@ -18,6 +18,7 @@ mod database;
 mod error_pages;
 mod middleware;
 mod models;
+mod multipart;
 mod pass;
 mod schema;
 mod util;

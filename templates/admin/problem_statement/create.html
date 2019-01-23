@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+{% block title %}Create Problem Statement{% endblock title %}
+{% block content %}
+<h1>Create new Problem Statement</h1>
+<form action="/admin/problem_statement/new" method="POST" enctype="multipart/form-data">
+	<label for="team_id">Problem id: </label>
+	<input type="text" name="problem_id" id="problem_id" value="" autofocus>
+
+	<br>
+	
+	<label for="statement">Statement: </label>
+	<input type="file" name="statement" id="statement" value="">
+
+	<br>
+	
+	<input type="submit" value="Add problem statement">
+</form>
+{% endblock content %}

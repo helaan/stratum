@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% block title %}Problem Statements{% endblock title %}
+{% block content %}
+<h1>Problem Statements</h1>
+
+<table>
+	<thead>
+		<tr>
+			<td>Id</td>
+			<td>Problem</td>
+			<td>Filename</td>
+			<td>Mimetype</td>
+			<td>Created at</td>
+			<td>Updated at</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for tup in problem_statements %}
+			{% set statement = tup[0] %}
+			{% set problem = tup[1] %}
+			<tr>
+				<td>{{ statement.id }}</td>
+				<td>{{ problem.name }}</td>
+				<td>{{ statement.filename }}</td>
+				<td>{{ statement.mimetype }}</td>
+				<td>{{ statement.created_at }}</td>
+				<td>{{ statement.updated_at }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<a href="/admin/problem_statement/new">Create Problem Statement</a>
+{% endblock content %}

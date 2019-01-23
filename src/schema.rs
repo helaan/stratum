@@ -1,5 +1,5 @@
 table! {
-    contestproblems (contest_id, problem_id) {
+    contest_problems (contest_id, problem_id) {
         contest_id -> Int8,
         problem_id -> Int8,
         label -> Varchar,
@@ -23,8 +23,18 @@ table! {
     problems (id) {
         id -> Int8,
         name -> Varchar,
-        statement -> Nullable<Bytea>,
-        statement_type -> Nullable<Varchar>,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+table! {
+    problem_statements (id) {
+        id -> Int8,
+        problem_id -> Int8,
+        filename -> Varchar,
+        mimetype -> Varchar,
+        statement -> Bytea,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
     }
@@ -59,15 +69,17 @@ table! {
     }
 }
 
-joinable!(contestproblems -> contests (contest_id));
-joinable!(contestproblems -> problems (problem_id));
+joinable!(contest_problems -> contests (contest_id));
+joinable!(contest_problems -> problems (problem_id));
+joinable!(problem_statements -> problems (problem_id));
 joinable!(sessions -> users (user_id));
 joinable!(users -> teams (team_id));
 
 allow_tables_to_appear_in_same_query!(
-    contestproblems,
+    contest_problems,
     contests,
     problems,
+    problem_statements,
     sessions,
     teams,
     users,

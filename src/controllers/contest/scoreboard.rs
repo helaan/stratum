@@ -1,6 +1,6 @@
 use crate::database::Execute;
 use crate::models::{Contest, ContestProblem, Problem, Team};
-use crate::schema::{contestproblems, problems, teams};
+use crate::schema::{contest_problems, problems, teams};
 use crate::util::render;
 use crate::AppState;
 use actix_web::{error, http::Method, AsyncResponder, Error, HttpRequest, HttpResponse, Scope};
@@ -19,20 +19,20 @@ pub fn index(
         .extensions()
         .get::<Contest>()
         .map(|c| c.id)
-        .ok_or(error::ErrorInternalServerError("contest not bound"))?;
+        .ok_or_else(|| error::ErrorInternalServerError("contest not bound"))?;
     Ok(req
         .state()
         .db
         .send(Execute::new(move |s| -> Result<_, Error> {
             let conn = s.get_conn()?;
-            let cproblems = contestproblems::table
-                .filter(contestproblems::contest_id.eq(contest_id))
+            let cproblems = contest_problems::table
+                .filter(contest_problems::contest_id.eq(contest_id))
                 .inner_join(problems::table)
                 .load::<(ContestProblem, Problem)>(&conn)
-                .map_err(|e| error::ErrorInternalServerError(e))?;
+                .map_err(error::ErrorInternalServerError)?;
             let teams = teams::table
                 .load::<Team>(&conn)
-                .map_err(|e| error::ErrorInternalServerError(e))?;
+                .map_err(error::ErrorInternalServerError)?;
             Ok((cproblems, teams))
         }))
         .from_err()
