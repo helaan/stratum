@@ -28,8 +28,7 @@ impl Middleware<AppState> for DataBinder {
                 .state()
                 .db
                 .send(Execute::new(
-                    move |s| {
-                        let conn = s.get_conn()?;
+                    move |conn| {
                         sessions::dsl::sessions
                             .find(key)
                             .left_join(users::dsl::users.left_join(teams::dsl::teams))

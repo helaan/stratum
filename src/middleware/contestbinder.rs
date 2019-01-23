@@ -19,8 +19,7 @@ impl Middleware<AppState> for ContestBinder {
         Ok(Started::Future(Box::new(
             req.state()
                 .db
-                .send(Execute::new(move |s| {
-                    let conn = s.get_conn()?;
+                .send(Execute::new(move |conn| {
                     contests::table
                         .filter(lower(contests::short_name).eq(contest_name.to_lowercase()))
                         .first::<Contest>(&conn)

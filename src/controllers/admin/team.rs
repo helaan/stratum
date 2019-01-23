@@ -39,8 +39,7 @@ pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
 pub fn create(req: HttpRequest<AppState>, form: Form<CreateTeam>) -> impl Responder {
     req.state()
         .db
-        .send(Execute::new(|s| -> Result<usize, Error> {
-            let conn = s.get_conn()?;
+        .send(Execute::new(|conn| -> Result<usize, Error> {
             diesel::insert_into(teams::table)
                 .values(&form.into_inner())
                 .execute(&conn)
@@ -57,8 +56,7 @@ pub fn create(req: HttpRequest<AppState>, form: Form<CreateTeam>) -> impl Respon
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
-        .send(Execute::new(|s| -> Result<Vec<Team>, Error> {
-            let conn = s.get_conn()?;
+        .send(Execute::new(|conn| -> Result<Vec<Team>, Error> {
             teams::dsl::teams
                 .order(teams::id.asc())
                 .load(&conn)
@@ -84,8 +82,7 @@ pub struct IdParams {
 pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responder {
     req.state()
         .db
-        .send(Execute::new(move |s| -> Result<Team, Error> {
-            let conn = s.get_conn()?;
+        .send(Execute::new(move |conn| -> Result<Team, Error> {
             teams::dsl::teams
                 .find(params.id)
                 .get_result::<Team>(&conn)
@@ -111,8 +108,7 @@ pub fn edit(
     let team = form.into_inner();
     req.state()
         .db
-        .send(Execute::new(move |s| -> Result<usize, Error> {
-            let conn = s.get_conn()?;
+        .send(Execute::new(move |conn| -> Result<usize, Error> {
             if team.id != params.id {
                 return Err(error::ErrorBadRequest(format!(
                     "Attempted to update different team, expected {}, was given {}",

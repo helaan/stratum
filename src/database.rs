@@ -24,51 +24,55 @@ impl Actor for DbExecutor {
     type Context = SyncContext<Self>;
 }
 
+impl<I: Send> Handler<Execute<DbConnection, I, Error>> for DbExecutor {
+    type Result = Result<I, Error>;
+    fn handle(
+        &mut self,
+        ex: Execute<DbConnection, I, Error>,
+        _: &mut Self::Context,
+    ) -> Result<I, Error> {
+        let conn = self.get_conn()?;
+        ex.exec(conn)
+    }
+}
 /* Largely copied from Actix:
  * https://github.com/actix/actix/blob/master/src/msgs.rs
  * Copy needed to add DbExecutor parameter to message
  */
-pub struct Execute<I: Send + 'static = (), E: Send + 'static = ()>(Box<FnExec<I, E>>);
-impl<I: Send, E: Send> Message for Execute<I, E> {
+pub struct Execute<P: 'static, I: Send + 'static, E: Send + 'static>(Box<FnExec<P, I, E>>);
+impl<P, I: Send, E: Send> Message for Execute<P, I, E> {
     type Result = Result<I, E>;
 }
 
-impl<I, E> Execute<I, E>
+impl<P, I, E> Execute<P, I, E>
 where
     I: Send + 'static,
     E: Send + 'static,
 {
     pub fn new<F>(f: F) -> Self
     where
-        F: FnOnce(&&mut DbExecutor) -> Result<I, E> + Send + 'static,
+        F: FnOnce(P) -> Result<I, E> + Send + 'static,
     {
         Execute(Box::new(f))
     }
 
     /// Execute enclosed function
-    pub fn exec(self, s: &&mut DbExecutor) -> Result<I, E> {
-        self.0.call_box(s)
+    pub fn exec(self, p: P) -> Result<I, E> {
+        self.0.call_box(p)
     }
 }
 
-trait FnExec<I: Send + 'static, E: Send + 'static>: Send + 'static {
-    fn call_box(self: Box<Self>, s: &&mut DbExecutor) -> Result<I, E>;
+trait FnExec<P, I: Send + 'static, E: Send + 'static>: Send + 'static {
+    fn call_box(self: Box<Self>, p: P) -> Result<I, E>;
 }
 
-impl<I, E, F> FnExec<I, E> for F
+impl<P, I, E, F> FnExec<P, I, E> for F
 where
     I: Send + 'static,
     E: Send + 'static,
-    F: FnOnce(&&mut DbExecutor) -> Result<I, E> + Send + 'static,
+    F: FnOnce(P) -> Result<I, E> + Send + 'static,
 {
-    fn call_box(self: Box<Self>, s: &&mut DbExecutor) -> Result<I, E> {
-        (*self)(s)
-    }
-}
-
-impl<I: Send, E: Send> Handler<Execute<I, E>> for DbExecutor {
-    type Result = Result<I, E>;
-    fn handle(&mut self, ex: Execute<I, E>, _: &mut Self::Context) -> Result<I, E> {
-        ex.exec(&self)
+    fn call_box(self: Box<Self>, p: P) -> Result<I, E> {
+        (*self)(p)
     }
 }

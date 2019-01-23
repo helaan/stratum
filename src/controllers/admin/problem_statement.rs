@@ -20,8 +20,7 @@ pub fn create(req: HttpRequest<AppState>) -> impl Responder {
     let mp = parse_multipart(req.multipart());
     mp.then(move |x| {
         let v = x.unwrap();
-        req.state().db.send(Execute::new(move |s| {
-            let conn = s.get_conn()?;
+        req.state().db.send(Execute::new(move |conn| {
             let statement = v
                 .get("statement")
                 .ok_or_else(|| error::ErrorBadRequest("Could not find statement"))?;
@@ -56,8 +55,7 @@ pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
-        .send(Execute::new(|s| {
-            let conn = s.get_conn()?;
+        .send(Execute::new(|conn| {
             problem_statements::table
                 .inner_join(problems::table)
                 .order(problem_statements::id.asc())

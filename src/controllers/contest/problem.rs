@@ -35,8 +35,7 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
         .ok_or_else(|| error::ErrorInternalServerError("contest not bound"));
     req.state()
         .db
-        .send(Execute::new(|s| {
-            let conn = s.get_conn()?;
+        .send(Execute::new(|conn| {
             let cid = contest_id?;
             let cp_problems = contest_problems::table
                 .inner_join(problems::table)
@@ -82,8 +81,7 @@ pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responde
     let contest_id = req.extensions().get::<Contest>().unwrap().id;
     req.state()
         .db
-        .send(Execute::new(move |s| {
-            let conn = s.get_conn()?;
+        .send(Execute::new(move |conn| {
             let statement = problem_statements::table
                 .find(params.id)
                 .get_result::<ProblemStatement>(&conn)

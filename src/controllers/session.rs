@@ -34,8 +34,7 @@ pub struct LoginForm {
 }
 
 pub fn login(req: HttpRequest<AppState>, form: Form<LoginForm>) -> impl Responder {
-    req.state().db.send(Execute::new(move |s| -> Result<Vec<Session>, Error> {
-        let conn = s.get_conn()?;
+    req.state().db.send(Execute::new(move |conn| -> Result<Vec<Session>, Error> {
         let query : Result<Option<User>, diesel::result::Error> = users::dsl::users.filter(users::columns::username.eq(&form.username)).first(&conn).optional();
         match query {
             Ok(opt_user) => {

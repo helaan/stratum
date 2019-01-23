@@ -23,8 +23,7 @@ pub fn index(
     Ok(req
         .state()
         .db
-        .send(Execute::new(move |s| -> Result<_, Error> {
-            let conn = s.get_conn()?;
+        .send(Execute::new(move |conn| -> Result<_, Error> {
             let cproblems = contest_problems::table
                 .filter(contest_problems::contest_id.eq(contest_id))
                 .inner_join(problems::table)

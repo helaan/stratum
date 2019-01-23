@@ -60,8 +60,7 @@ pub fn create(req: HttpRequest<AppState>, form: Form<CreateUserForm>) -> impl Re
     };
     req.state()
         .db
-        .send(Execute::new(move |s| -> Result<usize, Error> {
-            let conn = s.get_conn()?;
+        .send(Execute::new(move |conn| -> Result<usize, Error> {
             diesel::insert_into(users::table)
                 .values(&user)
                 .execute(&conn)
@@ -79,8 +78,7 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
         .send(Execute::new(
-            |s| {
-                let conn = s.get_conn()?;
+            |conn| {
                 let users = users::dsl::users
                     .left_join(teams::dsl::teams)
                     .order(users::id.asc())
@@ -116,8 +114,7 @@ pub struct IdParams {
 pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responder {
     req.state()
         .db
-        .send(Execute::new(move |s| -> Result<User, Error> {
-            let conn = s.get_conn()?;
+        .send(Execute::new(move |conn| {
             users::dsl::users
                 .find(params.id)
                 .get_result::<User>(&conn)
@@ -172,8 +169,7 @@ pub fn edit(
     };
     req.state()
         .db
-        .send(Execute::new(move |s| -> Result<usize, Error> {
-            let conn = s.get_conn()?;
+        .send(Execute::new(move |conn| -> Result<usize, Error> {
             if user.id != params.id {
                 return Err(error::ErrorBadRequest(format!(
                     "Attempted to update different user, expected {}, was given {}",
