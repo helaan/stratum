@@ -5,6 +5,32 @@ use bytes::BytesMut;
 use futures::future::{result, Future, FutureResult};
 use futures::stream::Stream;
 use std::collections::HashMap;
+use std::str;
+use std::str::FromStr;
+
+pub struct MultipartForm {
+    content: HashMap<String, (String, ContentDisposition, BytesMut)>,
+}
+
+impl MultipartForm {
+    pub fn get(&self, key: &str) -> Result<&(String, ContentDisposition, BytesMut), Error> {
+        self.content
+            .get(key)
+            .ok_or_else(|| error::ErrorBadRequest(format!("Could not find {}", key)))
+    }
+
+    pub fn get_content_str(&self, key: &str) -> Result<&str, Error> {
+        str::from_utf8(self.get(key)?.2.as_ref()).map_err(|e| {
+            error::ErrorBadRequest(format!("Could not parse {} as string: {}", key, e))
+        })
+    }
+
+    pub fn get_parsed_content<T: FromStr>(&self, key: &str) -> Result<T, Error> {
+        self.get_content_str(key)?
+            .parse::<T>()
+            .map_err(|_| error::ErrorBadRequest(format!("Could not parse {}", key)))
+    }
+}
 
 fn parse_item(
     item: MultipartItem<Payload>,
@@ -33,9 +59,7 @@ fn parse_item(
     }
 }
 
-pub fn parse_multipart(
-    mp: Multipart<Payload>,
-) -> FutureResponse<HashMap<String, (String, ContentDisposition, BytesMut)>> {
+pub fn parse_multipart(mp: Multipart<Payload>) -> FutureResponse<MultipartForm> {
     Box::new(
         mp.map_err(error::ErrorInternalServerError)
             .map(parse_item)
@@ -54,6 +78,7 @@ pub fn parse_multipart(
                 } else {
                     result(Err(error::ErrorBadRequest("Missing ContentDisposition")))
                 }
-            }),
+            })
+            .map(|h| MultipartForm { content: h }),
     )
 }

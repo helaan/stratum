@@ -58,6 +58,21 @@ table! {
 }
 
 table! {
+    test_cases (problem_id, position) {
+        problem_id -> Int8,
+        position -> Int4,
+        description -> Varchar,
+        input -> Bytea,
+        input_mimetype -> Varchar,
+        output -> Bytea,
+        output_mimetype -> Varchar,
+        visible_rights -> Int2,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+table! {
     users (id) {
         id -> Int8,
         team_id -> Nullable<Int8>,
@@ -73,6 +88,7 @@ joinable!(contest_problems -> contests (contest_id));
 joinable!(contest_problems -> problems (problem_id));
 joinable!(problem_statements -> problems (problem_id));
 joinable!(sessions -> users (user_id));
+joinable!(test_cases -> problems (problem_id));
 joinable!(users -> teams (team_id));
 
 allow_tables_to_appear_in_same_query!(
@@ -82,5 +98,6 @@ allow_tables_to_appear_in_same_query!(
     problem_statements,
     sessions,
     teams,
+    test_cases,
     users,
 );

@@ -1,7 +1,7 @@
 use crate::database::Execute;
-use crate::models::{Problem, ProblemStatement};
+use crate::models::{Problem, TestCase};
 use crate::multipart::parse_multipart;
-use crate::schema::{problem_statements, problems};
+use crate::schema::{problems, test_cases};
 use crate::util::render;
 use crate::AppState;
 use actix_web::{error, http::Method, AsyncResponder, HttpMessage, HttpRequest, Responder, Scope};
@@ -20,44 +20,56 @@ pub fn create(req: HttpRequest<AppState>) -> impl Responder {
     mp.then(move |x| {
         let v = x.unwrap();
         req.state().db.send(Execute::new(move |conn| {
-            let statement = v.get("statement")?;
             let problem_id: i64 = v.get_parsed_content("problem_id")?;
-            diesel::insert_into(problem_statements::table)
+            let position: i32 = v.get_parsed_content("position")?;
+            let description = v.get_content_str("description")?;
+            let input = v.get("input")?;
+            let output = v.get("output")?;
+            let visible_rights: i16 = v.get_parsed_content("visible_rights")?;
+
+            diesel::insert_into(test_cases::table)
                 .values((
-                    problem_statements::problem_id.eq(problem_id),
-                    problem_statements::filename
-                        .eq(statement.1.get_filename().unwrap_or("unnamed file")),
-                    problem_statements::mimetype.eq(&statement.0),
-                    problem_statements::statement.eq(statement.2.as_ref()),
+                    test_cases::problem_id.eq(problem_id),
+                    test_cases::position.eq(position),
+                    test_cases::description.eq(description),
+                    test_cases::input.eq(input.2.as_ref()),
+                    test_cases::input_mimetype.eq(&input.0),
+                    test_cases::output.eq(output.2.as_ref()),
+                    test_cases::output_mimetype.eq(&output.0),
+                    test_cases::visible_rights.eq(visible_rights),
                 ))
                 .execute(&conn)
                 .map_err(error::ErrorInternalServerError)
         }))
     })
-    .and_then(|_| Ok("uploaded problem statement"))
+    .from_err()
+    .and_then(|res| match res {
+        Ok(_) => Ok("uploaded test case"),
+        Err(e) => Err(e),
+    })
     .responder()
 }
 
 pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
-    render(&req, "admin/problem_statement/create.html", Context::new())
+    render(&req, "admin/test_case/create.html", Context::new())
 }
 
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
         .send(Execute::new(|conn| {
-            problem_statements::table
+            test_cases::table
                 .inner_join(problems::table)
-                .order(problem_statements::id.asc())
-                .load::<(ProblemStatement, Problem)>(&conn)
+                .order((problems::id.asc(), test_cases::position.asc()))
+                .load::<(TestCase, Problem)>(&conn)
                 .map_err(error::ErrorInternalServerError)
         }))
         .from_err()
         .and_then(move |res| match res {
             Ok(problem_statements) => {
                 let mut ctx = Context::new();
-                ctx.insert("problem_statements", &problem_statements);
-                render(&req, "admin/problem_statement/index.html", ctx)
+                ctx.insert("test_cases", &problem_statements);
+                render(&req, "admin/test_case/index.html", ctx)
             }
             Err(e) => Err(e),
         })

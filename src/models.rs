@@ -50,10 +50,23 @@ pub struct Session {
 }
 
 #[derive(AsChangeset, Identifiable, Queryable, Serialize, Deserialize, Debug)]
-#[table_name = "teams"]
 pub struct Team {
     pub id: i64,
     pub name: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Queryable, Serialize, Deserialize, Debug)]
+pub struct TestCase {
+    pub problem_id: i64,
+    pub position: i32,
+    pub description: String,
+    pub input: Vec<u8>,
+    pub input_mimetype: String,
+    pub output: Vec<u8>,
+    pub output_mimetype: String,
+    pub visible_rights: i16,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

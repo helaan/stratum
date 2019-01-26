@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}Create Test case{% endblock title %}
+{% block content %}
+<h1>Create new Test case</h1>
+<form action="/admin/test_case/new" method="POST" enctype="multipart/form-data">
+	<label for="problem_id">Problem id: </label>
+	<input type="text" name="problem_id" id="problem_id" value="" autofocus>
+
+	<br>
+	
+	<label for="position">Position: </label>
+	<input type="text" name="position" id="position" value="">
+
+	<br>
+	
+	<label for="description">Description: </label>
+	<input type="text" name="description" id="description" value="">
+
+	<br>
+
+	<label for="visible_rights">Visible rights: </label>
+	<input type="text" name="visible_rights" id="visible_rights" value="">
+
+	<br>
+	
+	<label for="input">Input: </label>
+	<input type="file" name="input" id="input" value="">
+
+	<br>
+	
+	<label for="output">Output: </label>
+	<input type="file" name="output" id="output" value="">
+
+	<br>
+	
+	<input type="submit" value="Add test case">
+</form>
+{% endblock content %}

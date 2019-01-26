@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% block title %}Test cases{% endblock title %}
+{% block content %}
+<h1>Test cases</h1>
+
+<table>
+	<thead>
+		<tr>
+			<td>Problem Id</td>
+			<td>Problem name</td>
+			<td>Position</td>
+			<td>Description</td>
+			<td>Visible Rights</td>
+			<td>Created at</td>
+			<td>Updated at</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for tup in test_cases %}
+			{% set test_case = tup[0] %}
+			{% set problem = tup[1] %}
+			<tr>
+				<td>{{ problem.id }}</td>
+				<td>{{ problem.name }}</td>
+				<td>{{ test_case.position }}</td>
+				<td>{{ test_case.description }}</td>
+				<td>{{ test_case.visible_rights }}</td>
+				<td>{{ test_case.created_at }}</td>
+				<td>{{ test_case.updated_at }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<a href="/admin/test_case/new">Create Test case</a>
+{% endblock content %}
