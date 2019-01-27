@@ -1,0 +1,15 @@
+[package]
+name = "stratum-grader"
+version = "0.1.0"
+authors = ["Henk van der Laan <opensource@henkvdlaan.com>"]
+edition = "2018"
+
+[dependencies]
+stratum-db = {path = "../stratum-db"}
+actix = "0.7"
+diesel = { version = "1.3", features = ["chrono", "postgres", "r2d2", "uuidv07"] }
+dotenv = "0.13"
+env_logger = "0.6"
+failure = "0.1"
+log = "0.4"
+chrono = "0.4"

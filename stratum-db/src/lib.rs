@@ -10,6 +10,9 @@ use std::marker::Send;
 
 pub mod schema;
 pub mod models;
+pub mod judgement_status;
+
+pub use judgement_status::JudgementStatus;
 
 type DbPool = Pool<ConnectionManager<PgConnection>>;
 type DbConnection = PooledConnection<ConnectionManager<PgConnection>>;
