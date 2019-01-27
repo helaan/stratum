@@ -1,0 +1,32 @@
+[package]
+name = "stratum-web"
+version = "0.1.0"
+authors = ["Henk van der Laan <opensource@henkvdlaan.com>"]
+edition = "2018"
+
+[dependencies]
+# Web framework
+actix = "0.7"
+actix-web = "0.7"
+# Network bytes library
+bytes = "0.4"
+# Password hashing library
+argon2rs = "0.2.5"
+rand = "0.6"
+# Timezone library
+chrono = { version = "0.4", features = ["serde"] }
+# Database ORM and Query Builder
+diesel = { version = "1.3", features = ["chrono", "postgres", "r2d2", "uuidv07"] }
+# Configuration library
+dotenv = "0.13"
+# Configuration of logging library
+env_logger = "0.6"
+# TODO comment
+futures = "0.1"
+# Standard Rust logging library
+log = "0.4"
+# Serialization library
+serde = { version = "1.0", features = ["derive"]}
+# Templating library
+tera = "0.11"
+uuid = { version = "0.7", features = ["serde", "v4"] }

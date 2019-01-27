@@ -39,7 +39,7 @@ fn main() {
     let cookie_secure = env::var("COOKIE_SECURE").expect("COOKIE_SECURE not set") == "TRUE";
 
     let app = move || {
-        let templates = compile_templates!("templates/**/*.html");
+        let templates = compile_templates!("./stratum-web/templates/**/*.html");
 
         let state = AppState {
             template: templates,
@@ -55,7 +55,10 @@ fn main() {
                     .secure(cookie_secure),
             ))
             .middleware(middleware::databinder::DataBinder {})
-            .handler("/static", fs::StaticFiles::new("./static").unwrap())
+            .handler(
+                "/static",
+                fs::StaticFiles::new("./stratum-web/static").unwrap(),
+            )
             .scope("/", controllers::register)
     };
 
