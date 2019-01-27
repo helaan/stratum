@@ -1,12 +1,12 @@
-use crate::database::Execute;
-use crate::models::{Problem, ProblemStatement};
 use crate::multipart::parse_multipart;
-use crate::schema::{problem_statements, problems};
 use crate::util::render;
 use crate::AppState;
 use actix_web::{error, http::Method, AsyncResponder, HttpMessage, HttpRequest, Responder, Scope};
 use diesel::prelude::*;
 use futures::future::Future;
+use stratum_db::models::{Problem, ProblemStatement};
+use stratum_db::schema::{problem_statements, problems};
+use stratum_db::Execute;
 use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {

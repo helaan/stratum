@@ -1,12 +1,12 @@
-use crate::database::Execute;
-use crate::models::{Session, Team, User};
-use crate::schema::{sessions, teams, users};
 use crate::AppState;
 use actix_web::middleware::session::RequestSession;
 use actix_web::middleware::{Middleware, Started};
 use actix_web::{error, Error, HttpRequest};
 use diesel::prelude::*;
 use futures::future::{err, ok, Future};
+use stratum_db::models::{Session, Team, User};
+use stratum_db::schema::{sessions, teams, users};
+use stratum_db::Execute;
 use uuid::Uuid;
 
 /** DataBinder looks at the session cookie and preloads the associated user
@@ -27,30 +27,26 @@ impl Middleware<AppState> for DataBinder {
             let fut = req
                 .state()
                 .db
-                .send(Execute::new(
-                    move |conn| {
-                        sessions::dsl::sessions
-                            .find(key)
-                            .left_join(users::dsl::users.left_join(teams::dsl::teams))
-                            .first::<(Session, Option<(User, Option<Team>)>)>(&conn)
-                            .map_err(error::ErrorInternalServerError)
-                    },
-                ))
+                .send(Execute::new(move |conn| {
+                    sessions::dsl::sessions
+                        .find(key)
+                        .left_join(users::dsl::users.left_join(teams::dsl::teams))
+                        .first::<(Session, Option<(User, Option<Team>)>)>(&conn)
+                        .map_err(error::ErrorInternalServerError)
+                }))
                 .from_err()
-                .and_then(
-                    move |res| match res {
-                        Ok(tup) => {
-                            if let Some(utup) = tup.1 {
-                                req.extensions_mut().insert(utup.0);
-                                if let Some(team) = utup.1 {
-                                    req.extensions_mut().insert(team);
-                                }
+                .and_then(move |res| match res {
+                    Ok(tup) => {
+                        if let Some(utup) = tup.1 {
+                            req.extensions_mut().insert(utup.0);
+                            if let Some(team) = utup.1 {
+                                req.extensions_mut().insert(team);
                             }
-                            ok(None)
                         }
-                        Err(e) => err(e),
-                    },
-                );
+                        ok(None)
+                    }
+                    Err(e) => err(e),
+                });
             Ok(Started::Future(Box::new(fut)))
         } else {
             Ok(Started::Done)

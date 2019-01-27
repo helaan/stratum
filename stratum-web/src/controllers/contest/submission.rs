@@ -1,7 +1,4 @@
-use crate::database::Execute;
-use crate::models::{Contest, Problem, Submission, Team};
 use crate::multipart::parse_multipart;
-use crate::schema::{contest_problems, problems, submission_files, submissions};
 use crate::util::render;
 use crate::AppState;
 use actix_web::{
@@ -11,6 +8,9 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use futures::future::Future;
 use std::collections::HashMap;
+use stratum_db::models::{Contest, Problem, Submission, Team};
+use stratum_db::schema::{contest_problems, problems, submission_files, submissions};
+use stratum_db::Execute;
 use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {

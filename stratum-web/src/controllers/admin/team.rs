@@ -4,9 +4,6 @@
 //! - Edit teams
 //! - Remove teams (TODO)
 
-use crate::database::Execute;
-use crate::models::Team;
-use crate::schema::teams;
 use crate::{util::render, AppState};
 use actix_web::{
     error, http::Method, AsyncResponder, Error, Form, HttpRequest, Path, Responder, Scope,
@@ -15,6 +12,9 @@ use diesel::prelude::*;
 use diesel::Insertable;
 use futures::future::Future;
 use serde::Deserialize;
+use stratum_db::models::Team;
+use stratum_db::schema::teams;
+use stratum_db::Execute;
 use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {

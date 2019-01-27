@@ -1,12 +1,12 @@
-use crate::database::Execute;
-use crate::models::Contest;
-use crate::schema::contests;
 use crate::AppState;
 use actix_web::middleware::{Middleware, Started};
 use actix_web::{error, Error, HttpRequest};
 use diesel::prelude::*;
 use diesel::sql_types::Text;
 use futures::future::{err, ok, Future};
+use stratum_db::models::Contest;
+use stratum_db::schema::contests;
+use stratum_db::Execute;
 
 sql_function!(fn lower(x: Text) -> Text);
 

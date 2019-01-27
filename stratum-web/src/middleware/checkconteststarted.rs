@@ -1,8 +1,8 @@
-use crate::models::Contest;
 use crate::AppState;
 use actix_web::middleware::{Middleware, Started};
 use actix_web::{error, Error, HttpRequest};
 use chrono::Utc;
+use stratum_db::models::Contest;
 
 pub struct CheckContestStarted;
 

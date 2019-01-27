@@ -1,6 +1,6 @@
-use crate::models::{Contest, Team, User};
 use crate::AppState;
 use actix_web::{error, Error, HttpRequest, HttpResponse};
+use stratum_db::models::{Contest, Team, User};
 
 // Render a page
 // Arguments:

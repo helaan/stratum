@@ -1,22 +1,14 @@
 [package]
-name = "stratum-web"
+name = "stratum-db"
 version = "0.1.0"
 authors = ["Henk van der Laan <opensource@henkvdlaan.com>"]
 edition = "2018"
 
 [dependencies]
-stratum-db = {path = "../stratum-db"}
 actix = "0.7"
 actix-web = "0.7"
-argon2rs = "0.2.5"
-bytes = "0.4"
 chrono = { version = "0.4", features = ["serde"] }
 diesel = { version = "1.3", features = ["chrono", "postgres", "r2d2", "uuidv07"] }
-dotenv = "0.13"
-env_logger = "0.6"
-futures = "0.1"
-log = "0.4"
-rand = "0.6"
 serde = { version = "1.0", features = ["derive"]}
-tera = "0.11"
 uuid = { version = "0.7", features = ["serde", "v4"] }
+

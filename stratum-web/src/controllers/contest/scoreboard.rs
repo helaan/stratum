@@ -1,11 +1,11 @@
-use crate::database::Execute;
-use crate::models::{Contest, ContestProblem, Problem, Team};
-use crate::schema::{contest_problems, problems, teams};
 use crate::util::render;
 use crate::AppState;
 use actix_web::{error, http::Method, AsyncResponder, Error, HttpRequest, HttpResponse, Scope};
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use futures::future::Future;
+use stratum_db::models::{Contest, ContestProblem, Problem, Team};
+use stratum_db::schema::{contest_problems, problems, teams};
+use stratum_db::Execute;
 use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {

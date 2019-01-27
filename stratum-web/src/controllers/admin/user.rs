@@ -4,10 +4,7 @@
 //! - Edit users
 //! - Remove users (TODO)
 
-use crate::database::Execute;
-use crate::models::{Team, User};
 use crate::pass::hash;
-use crate::schema::{sessions, teams, users};
 use crate::{util::render, AppState};
 use actix_web::{
     error, http::Method, AsyncResponder, Error, Form, HttpRequest, Path, Responder, Scope,
@@ -18,6 +15,9 @@ use diesel::{dsl::sql, sql_types::Timestamptz, AsChangeset, Insertable};
 use futures::future::Future;
 use serde::Deserialize;
 use std::collections::HashMap;
+use stratum_db::models::{Team, User};
+use stratum_db::schema::{sessions, teams, users};
+use stratum_db::Execute;
 use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
@@ -77,22 +77,20 @@ pub fn create(req: HttpRequest<AppState>, form: Form<CreateUserForm>) -> impl Re
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
-        .send(Execute::new(
-            |conn| {
-                let users = users::dsl::users
-                    .left_join(teams::dsl::teams)
-                    .order(users::id.asc())
-                    .load::<(User, Option<Team>)>(&conn)
-                    .map_err(error::ErrorInternalServerError)?;
-                let login_times = sessions::table
-                    .select((sessions::user_id, sql::<Timestamptz>("max(created_at)")))
-                    .group_by(sessions::user_id)
-                    .load::<(i64, DateTime<Utc>)>(&conn)
-                    .map(|d| d.iter().cloned().collect::<HashMap<_,_>>())
-                    .map_err(error::ErrorInternalServerError)?;
-                Ok((users, login_times))
-            },
-        ))
+        .send(Execute::new(|conn| {
+            let users = users::dsl::users
+                .left_join(teams::dsl::teams)
+                .order(users::id.asc())
+                .load::<(User, Option<Team>)>(&conn)
+                .map_err(error::ErrorInternalServerError)?;
+            let login_times = sessions::table
+                .select((sessions::user_id, sql::<Timestamptz>("max(created_at)")))
+                .group_by(sessions::user_id)
+                .load::<(i64, DateTime<Utc>)>(&conn)
+                .map(|d| d.iter().cloned().collect::<HashMap<_, _>>())
+                .map_err(error::ErrorInternalServerError)?;
+            Ok((users, login_times))
+        }))
         .from_err()
         .and_then(move |res| match res {
             Ok((users, last_login_times)) => {

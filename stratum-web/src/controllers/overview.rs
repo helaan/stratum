@@ -1,6 +1,6 @@
-use crate::database::Execute;
-use crate::models::Contest;
-use crate::schema::contests;
+use stratum_db::Execute;
+use stratum_db::models::Contest;
+use stratum_db::schema::contests;
 use crate::util::render;
 use crate::AppState;
 use actix_web::{error, http::Method, AsyncResponder, HttpRequest, Responder, Scope};

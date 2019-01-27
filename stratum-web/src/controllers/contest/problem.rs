@@ -1,6 +1,3 @@
-use crate::database::Execute;
-use crate::models::{Contest, ContestProblem, Problem, ProblemStatement};
-use crate::schema::{contest_problems, problem_statements, problems};
 use crate::util::render;
 use crate::AppState;
 use actix_web::{
@@ -10,6 +7,9 @@ use diesel::prelude::*;
 use diesel::BelongingToDsl;
 use futures::future::Future;
 use serde::{Deserialize, Serialize};
+use stratum_db::models::{Contest, ContestProblem, Problem, ProblemStatement};
+use stratum_db::schema::{contest_problems, problem_statements, problems};
+use stratum_db::Execute;
 use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {

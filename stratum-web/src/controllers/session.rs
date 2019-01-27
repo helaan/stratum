@@ -1,6 +1,3 @@
-use crate::database::Execute;
-use crate::models::{Session, User};
-use crate::schema::{sessions, users};
 use crate::util::render;
 use crate::{pass, AppState};
 use actix_web::middleware::session::RequestSession;
@@ -8,6 +5,9 @@ use actix_web::{error, http::Method, AsyncResponder, Error, Form, HttpRequest, R
 use diesel::prelude::*;
 use futures::future::Future;
 use serde::Deserialize;
+use stratum_db::models::{Session, User};
+use stratum_db::schema::{sessions, users};
+use stratum_db::Execute;
 use tera::Context;
 use uuid::Uuid;
 
