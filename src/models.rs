@@ -49,6 +49,27 @@ pub struct Session {
     pub created_at: DateTime<Utc>,
 }
 
+#[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, Debug)]
+#[belongs_to(Problem)]
+pub struct Submission {
+    pub id: i64,
+    pub location_id: i32,
+    pub problem_id: i64,
+    pub team_id: i64,
+    pub entry_point: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Queryable, Serialize, Deserialize, Debug)]
+pub struct SubmissionFile {
+    pub submission_id: i64,
+    pub submission_location_id: i32,
+    pub filename: String,
+    pub mimetype: String,
+    pub content: Vec<u8>,
+}
+
 #[derive(AsChangeset, Identifiable, Queryable, Serialize, Deserialize, Debug)]
 pub struct Team {
     pub id: i64,

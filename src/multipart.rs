@@ -9,7 +9,7 @@ use std::str;
 use std::str::FromStr;
 
 pub struct MultipartForm {
-    content: HashMap<String, (String, ContentDisposition, BytesMut)>,
+    pub content: HashMap<String, (String, ContentDisposition, BytesMut)>,
 }
 
 impl MultipartForm {
@@ -76,7 +76,12 @@ pub fn parse_multipart(mp: Multipart<Payload>) -> FutureResponse<MultipartForm> 
                         )))
                     }
                 } else {
-                    result(Err(error::ErrorBadRequest("Missing ContentDisposition")))
+                    /* Browsers always add a ContentDisposition header, but Actix removes it when
+                     * no file was uploaded. We'll just ignore these entries.
+                     * TODO henk: check in upstream why this happens
+                     */
+                    //result(Err(error::ErrorBadRequest("Missing ContentDisposition")))
+                    result(Ok(acc))
                 }
             })
             .map(|h| MultipartForm { content: h }),

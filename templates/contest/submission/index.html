@@ -1,0 +1,59 @@
+{% extends "contest/base.html" %}
+{% block title %}Problem overview{% endblock title %}
+{% block content %}
+
+<h1>New submission:</h1>
+<form action="/contest/{{ contest.short_name }}/submission/new" method="POST" enctype="multipart/form-data">
+	<div class="flex flex-wrap items-center">
+		<div class="w-30 tc">
+			<label for="source_code">Source code</label>
+		</div>
+		<div class="w-50">
+			<input type="file" name="source_code" id="source_code" value="" required>
+		</div>
+
+		{% for problem in problems %}
+		<div class="w-30 tc">
+			<label for="output_file_{{ problem.id }}">{{ problem.name }} solution file</label>
+		</div>
+		<div class="w-50">
+			<input type="file" name="output_file_{{ problem.id }}" id="output_file_{{ problem.id }}">
+			<textarea name="output_text_{{ problem.id }}" id="output_text_{{ problem.id }}"></textarea>
+		</div>
+		{% endfor %}
+
+		<div class="w-100">
+		<input type="submit" value="Submit solutions">
+		</div>
+	</div>
+</form>
+
+<h1>Submissions from Team {{active_team.name}}:</h1>
+{% if submissions | length == 0 %}
+<p>
+You have not yet submitted anything. Add your source code and the
+output for one of the problems using the form above and the judgement
+will show up here.
+</p>
+{% else %}
+<table class="w-100 collapse ba br2 b--black-10">
+	<thead>
+		<tr class="b">
+			<td class="tl">Submission time</td>
+			<td class="tl">Problem name</td>
+			<td class="tl">Judgement</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for sub in submissions %}
+		<tr class="striped--light-gray">
+			<td>{{ sub.created_at }}</td>
+			<td>{{ hproblems[sub.problem_id].name }}</td>
+			<td>TODO</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
+{% endblock content %}
