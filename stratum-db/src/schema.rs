@@ -20,6 +20,20 @@ table! {
 }
 
 table! {
+    judgements (grader_id, id) {
+        id -> Int8,
+        grader_id -> Int4,
+        submission_id -> Int8,
+        submission_location_id -> Int4,
+        status -> Int4,
+        score -> Nullable<Int8>,
+        valid -> Bool,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+table! {
     problems (id) {
         id -> Int8,
         name -> Varchar,
@@ -80,6 +94,18 @@ table! {
 }
 
 table! {
+    test_case_judgements (judgement_grader_id, judgement_id, test_case_position) {
+        judgement_id -> Int8,
+        judgement_grader_id -> Int4,
+        test_case_position -> Int4,
+        status -> Int4,
+        output -> Bytea,
+        error -> Bytea,
+        created_at -> Timestamptz,
+    }
+}
+
+table! {
     test_cases (problem_id, position) {
         problem_id -> Int8,
         position -> Int4,
@@ -118,12 +144,14 @@ joinable!(users -> teams (team_id));
 allow_tables_to_appear_in_same_query!(
     contest_problems,
     contests,
+    judgements,
     problems,
     problem_statements,
     sessions,
     submission_files,
     submissions,
     teams,
+    test_case_judgements,
     test_cases,
     users,
 );

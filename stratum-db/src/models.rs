@@ -22,6 +22,19 @@ pub struct Contest {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Queryable, Serialize, Deserialize, Debug)]
+pub struct Judgement {
+    pub id: i64,
+    pub grader_id: i32,
+    pub submission_id: i64,
+    pub submission_location_id: i32,
+    pub status: i32,
+    pub score: Option<i64>,
+    pub valid: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
 #[derive(Identifiable, Queryable, Serialize, Deserialize, Debug)]
 pub struct Problem {
     pub id: i64,
@@ -76,6 +89,17 @@ pub struct Team {
     pub name: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Queryable, Serialize, Deserialize, Debug)]
+pub struct TestCaseJudgement {
+    pub judgement_id: i64,
+    pub judgement_grader_id: i32,
+    pub test_case_position: i32,
+    pub status: i32,
+    pub output: Vec<u8>,
+    pub error: Vec<u8>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Queryable, Serialize, Deserialize, Debug)]
