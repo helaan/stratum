@@ -22,7 +22,8 @@ pub struct Contest {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Queryable, Serialize, Deserialize, Debug)]
+#[derive(AsChangeset, Identifiable, Queryable, Serialize, Deserialize, Debug)]
+#[primary_key(grader_id, id)]
 pub struct Judgement {
     pub id: i64,
     pub grader_id: i32,
@@ -64,6 +65,7 @@ pub struct Session {
 
 #[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, Debug)]
 #[belongs_to(Problem)]
+#[primary_key(location_id, id)]
 pub struct Submission {
     pub id: i64,
     pub location_id: i32,
@@ -91,12 +93,12 @@ pub struct Team {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Queryable, Serialize, Deserialize, Debug)]
+#[derive(Insertable, Queryable, Serialize, Deserialize, Debug)]
 pub struct TestCaseJudgement {
     pub judgement_id: i64,
     pub judgement_grader_id: i32,
     pub test_case_position: i32,
-    pub status: i32,
+    pub status_code: i32,
     pub output: Vec<u8>,
     pub error: Vec<u8>,
     pub created_at: DateTime<Utc>,

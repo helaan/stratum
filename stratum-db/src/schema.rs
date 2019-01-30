@@ -98,7 +98,7 @@ table! {
         judgement_id -> Int8,
         judgement_grader_id -> Int4,
         test_case_position -> Int4,
-        status -> Int4,
+        status_code -> Int4,
         output -> Bytea,
         error -> Bytea,
         created_at -> Timestamptz,

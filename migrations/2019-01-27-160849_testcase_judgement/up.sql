@@ -2,7 +2,7 @@ CREATE TABLE test_case_judgements (
 	judgement_id BIGINT NOT NULL,
 	judgement_grader_id INT NOT NULL,
 	test_case_position INT NOT NULL,
-	status INT NOT NULL,
+	status_code INT NOT NULL,
 	output BYTEA NOT NULL,
 	error BYTEA NOT NULL,
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
