@@ -8,8 +8,8 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use futures::future::Future;
 use std::collections::HashMap;
-use stratum_db::models::{Contest, Problem, Submission, Team};
-use stratum_db::schema::{contest_problems, problems, submission_files, submissions};
+use stratum_db::models::{Contest, Judgement, Problem, Submission, Team};
+use stratum_db::schema::{contest_problems, judgements, problems, submission_files, submissions};
 use stratum_db::Execute;
 use tera::Context;
 
@@ -40,9 +40,16 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
                 .map_err(error::ErrorInternalServerError)?;
             let subs = Submission::belonging_to(&problems)
                 .filter(submissions::team_id.eq(team_id))
+                .left_join(
+                    judgements::table.on(submissions::location_id
+                        .eq(judgements::submission_location_id)
+                        .and(submissions::id.eq(judgements::submission_id))
+                        .and(judgements::valid.eq(true))),
+                )
                 .order(submissions::created_at.desc())
-                .load::<Submission>(&conn)
+                .load::<(Submission, Option<Judgement>)>(&conn)
                 .map_err(error::ErrorInternalServerError)?;
+
             Ok((problems, subs))
         }))
         .from_err()

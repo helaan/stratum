@@ -45,11 +45,27 @@ will show up here.
 		</tr>
 	</thead>
 	<tbody>
-		{% for sub in submissions %}
+		{% for tup in submissions %}
+		{% set sub = tup[0] %}
+		{% set jm = tup[1] %}
 		<tr class="striped--light-gray">
 			<td>{{ sub.created_at }}</td>
 			<td>{{ hproblems[sub.problem_id].name }}</td>
-			<td>TODO</td>
+			<td>
+				{% if jm %}
+					{% if jm.status == 100 %}
+						{{jm.score}}
+					{% elif jm.status == 110 %}
+						Wrong Answer
+					{% elif jm.status == 200 %}
+						Internal System Error
+					{% else %}
+						Unknown error code: {{ jm.status }}
+					{% endif %}
+				{% else %}
+					Not judged yet
+				{% endif %}
+			</td>
 		</tr>
 		{% endfor %}
 	</tbody>
