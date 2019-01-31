@@ -25,7 +25,13 @@
 			{% for cproblem in cproblems %}
 			<td class="tc">
 				{% if pscores[team.id] and pscores[team.id][cproblem.1.id]and pscores[team.id][cproblem.1.id] >= 0 %}
-					{{ pscores[team.id][cproblem.1.id] }}
+					{% if pscores[team.id][cproblem.1.id] == bscores[cproblem.1.id] %}
+						<div class="fw6">
+						{{ pscores[team.id][cproblem.1.id] }}
+						</div>
+					{% else %}
+						{{ pscores[team.id][cproblem.1.id] }}
+					{% endif %}
 				{% else %}
 					-
 				{% endif %}

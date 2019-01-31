@@ -35,7 +35,7 @@ pub fn index(
             let mut teams = teams::table
                 .load::<Team>(&conn)
                 .map_err(error::ErrorInternalServerError)?;
-            let (pscores, tscores) = submissions::table
+            let (pscores, tscores, bscores) = submissions::table
                 .inner_join(
                     judgements::table.on(submissions::id
                         .eq(judgements::submission_id)
@@ -60,9 +60,10 @@ pub fn index(
                 .iter()
                 // pscores: scores for each problem for each team
                 // tscores: scores of each team
+                // bscores: best scores of each problem
                 .fold(
-                    (HashMap::new(), HashMap::new()),
-                    |(mut pscores, mut tscores), item| {
+                    (HashMap::new(), HashMap::new(), HashMap::new()),
+                    |(mut pscores, mut tscores, mut bscores), item| {
                         let score = item.2.unwrap_or(0);
                         if score > 0 {
                             let team = pscores.entry(item.0).or_insert_with(HashMap::new);
@@ -72,7 +73,8 @@ pub fn index(
                                 .and_modify(|e| *e += score)
                                 .or_insert(score);
                         }
-                        (pscores, tscores)
+                        bscores.entry(item.1).and_modify(|e| if score > *e {*e=score}).or_insert(score);
+                        (pscores, tscores, bscores)
                     },
                 );
             teams.sort_by(|a, b| {
@@ -81,16 +83,17 @@ pub fn index(
                     .unwrap_or(&0)
                     .cmp(&tscores.get(&a.id).unwrap_or(&0))
             });
-            Ok((cproblems, teams, pscores, tscores))
+            Ok((cproblems, teams, pscores, tscores, bscores))
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok((cproblems, teams, pscores, tscores)) => {
+            Ok((cproblems, teams, pscores, tscores, bscores)) => {
                 let mut ctx = Context::new();
                 ctx.insert("cproblems", &cproblems);
                 ctx.insert("teams", &teams);
                 ctx.insert("tscores", &tscores);
                 ctx.insert("pscores", &pscores);
+                ctx.insert("bscores", &bscores);
                 render(&req, "contest/scoreboard/show.html", ctx)
             }
             Err(e) => Err(e),
