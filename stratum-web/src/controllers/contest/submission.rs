@@ -39,6 +39,9 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
                 .load::<Problem>(&conn)
                 .map_err(error::ErrorInternalServerError)?;
             let subs = Submission::belonging_to(&problems)
+                // HACK: timestamptz too precise to notice
+                //.distinct_on((submissions::location_id, submissions::id))
+                .distinct_on(submissions::created_at)
                 .filter(submissions::team_id.eq(team_id))
                 .left_join(
                     judgements::table.on(submissions::location_id
@@ -46,7 +49,7 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
                         .and(submissions::id.eq(judgements::submission_id))
                         .and(judgements::valid.eq(true))),
                 )
-                .order(submissions::created_at.desc())
+                .order((submissions::created_at.desc(), judgements::grader_id.asc()))
                 .load::<(Submission, Option<Judgement>)>(&conn)
                 .map_err(error::ErrorInternalServerError)?;
 
