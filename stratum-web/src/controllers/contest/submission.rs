@@ -74,6 +74,7 @@ pub fn create(req: HttpRequest<AppState>) -> impl Responder {
     let team = req.extensions().get::<Team>().map(|t| t.id).ok_or_else(|| {
         error::ErrorForbidden("You are not allowed to submit as you are not in a team")
     });
+    let location_id = req.state().location_id;
     parse_multipart(req.multipart())
         .then(move |x| {
             req.state().db.send(Execute::new(
@@ -98,7 +99,7 @@ pub fn create(req: HttpRequest<AppState>) -> impl Responder {
                             conn.transaction::<(), diesel::result::Error, _>(|| {
                                 let sub = diesel::insert_into(submissions::table)
                                     .values((
-                                        submissions::location_id.eq(1), //TODO
+                                        submissions::location_id.eq(location_id),
                                         submissions::team_id.eq(team_id),
                                         submissions::problem_id.eq(problem_id),
                                         submissions::entry_point.eq(filename),

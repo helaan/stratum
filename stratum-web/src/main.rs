@@ -21,6 +21,7 @@ mod util;
 pub struct AppState {
     pub template: Tera,
     pub db: Addr<DbExecutor>,
+    pub location_id: i32,
 }
 
 fn main() {
@@ -37,12 +38,18 @@ fn main() {
     let cookie_key = env::var("COOKIE_KEY").expect("COOKIE_KEY not set");
     let cookie_secure = env::var("COOKIE_SECURE").expect("COOKIE_SECURE not set") == "TRUE";
 
+    let location_id = env::var("LOCATION_ID")
+        .expect("LOCATION_ID not set")
+        .parse()
+        .unwrap();
+
     let app = move || {
         let templates = compile_templates!("./stratum-web/templates/**/*.html");
 
         let state = AppState {
             template: templates,
             db: db_addr.clone(),
+            location_id,
         };
 
         App::with_state(state)
