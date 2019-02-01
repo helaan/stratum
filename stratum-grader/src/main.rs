@@ -100,6 +100,8 @@ fn main() {
             if judgement_opt.is_none() {
                 return Ok(());
             }
+            idle = false;
+
             let mut judgement = judgement_opt.unwrap();
 
             let submission = submissions::table
@@ -200,6 +202,10 @@ fn run(
     {
         let stdin = cmd.stdin.as_mut().expect("Failed to open stdin");
         stdin.write_all(&submission_file.content)?;
+        // According to POSIX all files end on a newline, so if ours doesn't, add one.
+        if submission_file.content.last() != Some(&b'\n') {
+            stdin.write_all(b"\n")?;
+        }
     }
     let output = cmd.wait_with_output()?;
     Ok(TestCaseJudgement {
