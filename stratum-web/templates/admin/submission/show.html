@@ -16,7 +16,7 @@
 <h3>Test case {{tcj.test_case_position}} Stdout (status code {{tcj.status_code}})</h3>
 <p>{{tcj.output |as_str}}</p>
 <h4>Stderror</h4>
-<p>{{tcj.error}}</p>
+<p>{{tcj.error | safe}}</p>
 {% else %}
 <p>No testcase judgement found</p>
 {% endif %}

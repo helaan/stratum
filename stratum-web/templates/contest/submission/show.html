@@ -8,8 +8,8 @@
 
 {% for tcj in test_case_judgements %}
 <h2>Testcase {{ tcj.test_case_position }}</h2>
-
-<p>{{tcj.error}}</p>
+{# HACK: prevent HTML injection #}
+<p>{{tcj.error | safe}}</p>
 {% endfor %}
 
 {% endblock %}
