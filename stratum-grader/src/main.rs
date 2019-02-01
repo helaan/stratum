@@ -38,6 +38,7 @@ fn main() {
                 judgements::table.on(submissions::location_id
                     .eq(judgements::submission_location_id)
                     .and(submissions::id.eq(judgements::submission_id))
+                    .and(judgements::grader_id.eq(grader_id))
                     .and(judgements::valid.eq(true))),
             )
             .filter(judgements::id.is_null())
@@ -155,7 +156,7 @@ fn run(
 ) -> Result<TestCaseJudgement, Error> {
     let executable_path = run_path
         .join("executables")
-        .join(submission.problem_id.to_string());
+        .join(format!("{}.{}", submission.problem_id, test_case.position));
     let test_case_path = run_path.join("testcases");
     let input_path = test_case_path.join(format!(
         "{}.{}.in",
