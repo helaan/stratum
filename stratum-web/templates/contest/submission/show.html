@@ -1,0 +1,15 @@
+{% extends "contest/base.html" %}
+{% block title %}Submission {{submission.id}},{{submission.location_id}}{% endblock title %}
+{% block content %}
+
+<h1>Submission for problem {{problem.name}}</h1>
+
+<p>Score: {% if judgement.score %}{{judgement.score}}{% else %} Not given {% endif %}</p>
+
+{% for tcj in test_case_judgements %}
+<h2>Testcase {{ tcj.test_case_position }}</h2>
+
+<p>{{tcj.error}}</p>
+{% endfor %}
+
+{% endblock %}
