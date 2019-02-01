@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block title %}Submission {{submission.id}},{{submission.location_id}}{% endblock title %}
+{% block content %}
+
+<h1>Submission {{submission.id}},{{submission.location_id}} for {{problem.name}} by {{team.name}}</h1>
+
+{% for file in filenames %}
+	<p><a href="/admin/submission/{{submission.location_id}}/{{submission.id}}/{{file}}">{{ file }}</a></p>
+{% endfor %}
+
+{% for tup in judgements %}
+{% set jm = tup.0 %}
+<h2 {% if not jm.valid %} class="strike" {% endif %}>Judgement {{jm.id}}@{{jm.grader_id}}: Score {{ jm.score}}, Status {{ jm.status }}</h2>
+{% if tup.1 %}
+{% set tcj = tup.1 %}
+<h3>Test case {{tcj.test_case_position}} Stdout (status code {{tcj.status_code}})</h3>
+<p>{{tcj.output |as_str}}</p>
+<h4>Stderror</h4>
+<p>{{tcj.error}}</p>
+{% else %}
+<p>No testcase judgement found</p>
+{% endif %}
+{% endfor %}
+
+{% endblock content %}

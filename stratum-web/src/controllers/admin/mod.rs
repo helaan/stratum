@@ -7,6 +7,7 @@ pub mod problem_statement;
 pub mod team;
 pub mod test_case;
 pub mod user;
+pub mod submission;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
     scop.middleware(CheckRights { min_rights: 1000 })
@@ -14,5 +15,6 @@ pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
         .nested("/team", team::register)
         .nested("/test_case", test_case::register)
         .nested("/user", user::register)
+        .nested("/submission", submission::register)
         .nested("", overview::register)
 }
