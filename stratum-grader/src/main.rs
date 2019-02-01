@@ -17,7 +17,18 @@ use stratum_db::schema::{
 
 fn main() {
     dotenv().ok();
-    env_logger::init();
+
+    let sentry = env::var("SENTRY_DSN").map(sentry::init);
+    let sentry_enabled = sentry.is_ok();
+
+    if sentry_enabled {
+        sentry::integrations::panic::register_panic_handler();
+        sentry::integrations::env_logger::init(None, Default::default());
+        log::info!("Sentry initialized!");
+    } else {
+        env_logger::init();
+        log::info!("No SENTRY_DSN found, not registering with Sentry");
+    }
 
     let grader_id: i32 = env::var("GRADER_ID")
         .expect("GRADER_ID not set")

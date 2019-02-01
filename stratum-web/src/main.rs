@@ -7,6 +7,7 @@ use actix::prelude::*;
 use actix_web::middleware::{session::*, Logger};
 use actix_web::{fs, server, App};
 use dotenv::dotenv;
+use sentry_actix::SentryMiddleware;
 use std::env;
 use stratum_db::{create_pool, DbExecutor};
 use tera::{compile_templates, Tera};
@@ -26,7 +27,18 @@ pub struct AppState {
 
 fn main() {
     dotenv().ok();
-    env_logger::init();
+
+    let sentry = env::var("SENTRY_DSN").map(sentry::init);
+    let sentry_enabled = sentry.is_ok();
+
+    if sentry_enabled {
+        sentry::integrations::panic::register_panic_handler();
+        sentry::integrations::env_logger::init(None, Default::default());
+        log::info!("Sentry initialized!");
+    } else {
+        env_logger::init();
+        log::info!("No SENTRY_DSN found, not registering with Sentry");
+    }
     log::debug!("Stratum starting...");
     let system = actix::System::new("stratum");
 
@@ -52,8 +64,11 @@ fn main() {
             location_id,
         };
 
-        App::with_state(state)
-            .middleware(Logger::default())
+        let mut app = App::with_state(state);
+        if sentry_enabled {
+            app = app.middleware(SentryMiddleware::new());
+        }
+        app.middleware(Logger::default())
             .middleware(error_pages::register())
             .middleware(SessionStorage::new(
                 CookieSessionBackend::private(&cookie_key.as_bytes())

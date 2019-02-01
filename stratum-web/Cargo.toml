@@ -17,6 +17,8 @@ env_logger = "0.6"
 futures = "0.1"
 log = "0.4"
 rand = "0.6"
+sentry = "0.13"
+sentry-actix = "0.13"
 serde = { version = "1.0", features = ["derive"]}
 tera = "0.11"
 uuid = { version = "0.7", features = ["serde", "v4"] }
