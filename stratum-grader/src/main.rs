@@ -41,6 +41,8 @@ fn main() {
 
     log::info!("Stratum-grader starting with ID {}", grader_id);
 
+    let mut idle = false;
+
     loop {
         // Create judgements
         let subs = submissions::table
@@ -55,12 +57,15 @@ fn main() {
             .filter(judgements::id.is_null())
             .load::<Submission>(&conn)
             .unwrap();
-        log::info!("Checked for new submissions, {} found", subs.len());
+        if !idle {
+            log::info!("Checked for new submissions, {} found", subs.len());
+        }
 
         if subs.is_empty() {
             let one_sec = Duration::from_secs(1);
             sleep(one_sec);
         }
+        idle = subs.is_empty();
 
         for sub in subs {
             log::info!(
