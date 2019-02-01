@@ -176,7 +176,7 @@ fn run(
     );
     let mut cmd = Command::new(&executable_path)
         .arg(input_path)
-        .arg(output_path)
+        //.arg(output_path)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
