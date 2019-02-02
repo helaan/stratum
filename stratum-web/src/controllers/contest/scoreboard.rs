@@ -19,14 +19,14 @@ pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
 pub fn index(
     req: HttpRequest<AppState>,
 ) -> Result<Box<(Future<Item = HttpResponse, Error = Error>)>, Error> {
-    let (contest_id, mut contest_freeze) = req
+    let (contest_id, mut contest_freeze, contest_end) = req
         .extensions()
         .get::<Contest>()
-        .map(|c| (c.id, c.freeze_at.unwrap_or_else(Utc::now)))
+        .map(|c| (c.id, c.freeze_at.unwrap_or_else(Utc::now), c.end_at))
         .ok_or_else(|| error::ErrorInternalServerError("contest not bound"))?;
     if let Some(user) = req.extensions().get::<User>() {
         if user.rights >= 1000 {
-            contest_freeze = Utc::now();
+            contest_freeze = contest_end.unwrap_or_else(Utc::now);
         }
     }
     Ok(req
