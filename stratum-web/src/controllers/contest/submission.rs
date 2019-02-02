@@ -2,7 +2,8 @@ use crate::multipart::parse_multipart;
 use crate::util::render;
 use crate::AppState;
 use actix_web::{
-    error, http::Method, AsyncResponder, Error, HttpMessage, HttpRequest, Path, Responder, Scope,
+    error, http::Method, AsyncResponder, Error, HttpMessage, HttpRequest, HttpResponse, Path,
+    Responder, Scope,
 };
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
@@ -145,7 +146,25 @@ pub fn create(req: HttpRequest<AppState>) -> impl Responder {
         })
         .from_err()
         .and_then(|res| match res {
-            Ok(n) => Ok(format!("uploaded {} submissions", n)),
+            Ok(n) => Ok(HttpResponse::Ok().body(format!(
+                r#"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+	<h1>Submitted {} submissions</h1>
+
+	<p>We will grade them as soon as possible</p>
+
+	<a href="javascript:history.back()">Go back to submission page</a>
+</body>
+</html>
+                "#,
+                n,
+            ))),
             Err(e) => Err(e),
         })
         .responder()
