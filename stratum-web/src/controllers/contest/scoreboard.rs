@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use diesel::sql_types::BigInt;
 use futures::future::Future;
 use std::collections::HashMap;
-use stratum_db::models::{Contest, ContestProblem, Problem, Team};
+use stratum_db::models::{Contest, ContestProblem, Problem, Team, User};
 use stratum_db::schema::{contest_problems, judgements, problems, submissions, teams};
 use stratum_db::Execute;
 use tera::Context;
@@ -19,11 +19,16 @@ pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
 pub fn index(
     req: HttpRequest<AppState>,
 ) -> Result<Box<(Future<Item = HttpResponse, Error = Error>)>, Error> {
-    let (contest_id, contest_freeze) = req
+    let (contest_id, mut contest_freeze) = req
         .extensions()
         .get::<Contest>()
         .map(|c| (c.id, c.freeze_at.unwrap_or_else(Utc::now)))
         .ok_or_else(|| error::ErrorInternalServerError("contest not bound"))?;
+    if let Some(user) = req.extensions().get::<User>() {
+        if user.rights >= 1000 {
+            contest_freeze = Utc::now();
+        }
+    }
     Ok(req
         .state()
         .db
