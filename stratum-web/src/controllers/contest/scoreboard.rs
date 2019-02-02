@@ -1,6 +1,7 @@
 use crate::util::render;
 use crate::AppState;
 use actix_web::{error, http::Method, AsyncResponder, Error, HttpRequest, HttpResponse, Scope};
+use chrono::Utc;
 use diesel::dsl::{any, sql};
 use diesel::prelude::*;
 use diesel::sql_types::BigInt;
@@ -18,10 +19,10 @@ pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
 pub fn index(
     req: HttpRequest<AppState>,
 ) -> Result<Box<(Future<Item = HttpResponse, Error = Error>)>, Error> {
-    let contest_id = req
+    let (contest_id, contest_freeze) = req
         .extensions()
         .get::<Contest>()
-        .map(|c| c.id)
+        .map(|c| (c.id, c.freeze_at.unwrap_or_else(Utc::now)))
         .ok_or_else(|| error::ErrorInternalServerError("contest not bound"))?;
     Ok(req
         .state()
@@ -53,6 +54,7 @@ pub fn index(
                 .filter(
                     submissions::team_id.eq(any(teams.iter().map(|i| i.id).collect::<Vec<_>>())),
                 )
+                .filter(submissions::created_at.lt(contest_freeze))
                 .filter(judgements::valid.eq(true))
                 .group_by((submissions::problem_id, submissions::team_id))
                 .load::<(i64, i64, Option<i64>)>(&conn)
@@ -73,7 +75,14 @@ pub fn index(
                                 .and_modify(|e| *e += score)
                                 .or_insert(score);
                         }
-                        bscores.entry(item.1).and_modify(|e| if score > *e {*e=score}).or_insert(score);
+                        bscores
+                            .entry(item.1)
+                            .and_modify(|e| {
+                                if score > *e {
+                                    *e = score
+                                }
+                            })
+                            .or_insert(score);
                         (pscores, tscores, bscores)
                     },
                 );

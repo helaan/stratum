@@ -7,7 +7,7 @@
 {% block content %}
 <h1>{{ contest.name }}</h1>
 
-<p>Starts at: {{ contest.start_at }}{% if contest.end_at %}, ends at {{ contest.end_at }} {% endif %}</p>
+<p>Starts at {{ contest.start_at }}{% if contest.freeze_at %}, freeze at {{ contest.freeze_at}}{% endif %}{% if contest.end_at %}, ends at {{ contest.end_at }} {% endif %}</p>
 
 <table class="w-100 collapse ba br2 b--black-10">
 	<thead>
