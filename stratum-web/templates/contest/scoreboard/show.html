@@ -1,4 +1,8 @@
 {% extends "contest/base.html" %}
+{% block head %}
+{{ super() }}
+<meta http-equiv="refresh" content="60" />
+{% endblock head %}
 {% block title %}Scoreboard{% endblock title %}
 {% block content %}
 <h1>{{ contest.name }}</h1>
