@@ -135,12 +135,25 @@ fn main() {
                     &submission,
                     &submission_file,
                 )
+                // If Judging crashed for some reason: log the crash and move
+                // this submission out of the way.
+                .unwrap_or_else(|err| {
+                    log::error!("Error occurred when grading {:?}", err);
+                    TestCaseJudgement {
+                        judgement_id: judgement.id,
+                        judgement_grader_id: judgement.grader_id,
+                        test_case_position: test_case.position,
+                        status_code: 1, // Internal error
+                        output: format!("{:?}", err).into_bytes(),
+                        error: Vec::new(),
+                        created_at: Utc::now(),
+                    }
+                })
             });
             let mut score = 0;
             let mut success = true;
             let mut judgement_status = JudgementStatus::Accepted;
-            for tcjudgement in test_case_judgements {
-                let tcj = tcjudgement?;
+            for tcj in test_case_judgements {
                 if tcj.status_code != 42 {
                     success = false;
                     judgement_status = if tcj.status_code == 43 {
@@ -155,6 +168,9 @@ fn main() {
                 }
                 tcj.insert_into(test_case_judgements::table)
                     .execute(&conn)?;
+                if !success {
+                    break;
+                }
             }
             judgement.status = judgement_status as i32;
             judgement.score = if success { Some(score) } else { None };
