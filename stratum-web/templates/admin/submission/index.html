@@ -23,11 +23,17 @@
 			<td>{{sub.problem_id}}</td>
 			<td>{{sub.team_id}}</td>
 			<td>
-				{% if judgements[sub.id] and judgements[sub.id][sub.location_id] %}
-				{% for jm in judgements[sub.id][sub.location_id] %}
-				[{{ jm.grader_id }}, {{ jm.status }}, {{ jm.score}}]
-				{% endfor %}
-				{% endif %}
+				{% match judgements.get(sub.id.borrow()) %}
+				{% when Some with (i) %}
+					{% match i.get(sub.location_id.borrow()) %}
+					{% when Some with (jms) %}
+						{% for jm in jms %}
+							[{{ jm.grader_id }}, {{ jm.status }}, {{ jm.score.unwrap_or(0) }}]
+						{% endfor %}
+					{% when None %}
+					{% endmatch %}
+				{% when None %}
+				{% endmatch %}
 
 			</td>
 		</tr>

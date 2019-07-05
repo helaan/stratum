@@ -1,27 +1,38 @@
 use crate::multipart::parse_multipart;
-use crate::util::render;
+use crate::template::{extract_contest, TemplateContext};
 use crate::AppState;
 use actix_web::{
     error, http::Method, AsyncResponder, Error, HttpMessage, HttpRequest, HttpResponse, Path,
     Responder, Scope,
 };
+use askama::Template;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use futures::future::Future;
 use serde::{Deserialize, Serialize};
+use std::borrow::Borrow;
 use std::collections::HashMap;
 use stratum_db::models::{Contest, Judgement, Problem, Submission, Team, TestCaseJudgement};
 use stratum_db::schema::{
     contest_problems, judgements, problems, submission_files, submissions, test_case_judgements,
 };
 use stratum_db::Execute;
-use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
     scop.route("", Method::GET, index)
         .route("/new", Method::POST, create)
         .route("/{location_id:\\d+}/{id:\\d+}", Method::GET, show)
+}
+
+#[derive(Template)]
+#[template(path = "contest/submission/index.html")]
+struct IndexTemplate {
+    ctx: TemplateContext,
+    contest: Contest,
+    problems: Vec<Problem>,
+    submissions: Vec<(Submission, Option<Judgement>)>,
+    problem_names: HashMap<i64, String>,
 }
 
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
@@ -64,12 +75,16 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
         .from_err()
         .and_then(move |res| match res {
             Ok((problems, subs)) => {
-                let mut ctx = Context::new();
-                let hashed_problems: HashMap<_, _> = problems.iter().map(|v| (v.id, v)).collect();
-                ctx.insert("problems", &problems);
-                ctx.insert("hproblems", &hashed_problems);
-                ctx.insert("submissions", &subs);
-                render(&req, "contest/submission/index.html", ctx)
+                let problem_names: HashMap<_, _> =
+                    problems.iter().map(|v| (v.id, v.name.clone())).collect();
+                Ok(IndexTemplate {
+                    ctx: TemplateContext::new(&req),
+                    contest: extract_contest(&req)
+                        .ok_or_else(|| error::ErrorInternalServerError("contest not bound"))?,
+                    problems,
+                    submissions: subs,
+                    problem_names,
+                })
             }
             Err(e) => Err(e),
         })
@@ -187,6 +202,17 @@ pub struct Utf8TestCaseJudgement {
     pub created_at: DateTime<Utc>,
 }
 
+#[derive(Template)]
+#[template(path = "contest/submission/show.html")]
+struct ShowTemplate {
+    ctx: TemplateContext,
+    contest: Contest,
+    submission: Submission,
+    problem: Problem,
+    judgement: Judgement,
+    test_case_judgements: Vec<Utf8TestCaseJudgement>,
+}
+
 fn show(req: HttpRequest<AppState>, params: Path<IdLocationIdParams>) -> impl Responder {
     let team = req
         .extensions()
@@ -237,13 +263,22 @@ fn show(req: HttpRequest<AppState>, params: Path<IdLocationIdParams>) -> impl Re
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok((sub, jm, tcjs)) => {
-                let mut ctx = Context::new();
+            Ok(((submission, problem), judgement, test_case_judgements)) => {
+                /*let mut ctx = Context::new();
                 ctx.insert("submission", &sub.0);
                 ctx.insert("problem", &sub.1);
                 ctx.insert("judgement", &jm);
                 ctx.insert("test_case_judgements", &tcjs);
-                render(&req, "contest/submission/show.html", ctx)
+                render(&req, "contest/submission/show.html", ctx)*/
+                Ok(ShowTemplate {
+                    ctx: TemplateContext::new(&req),
+                    contest: extract_contest(&req)
+                        .ok_or_else(|| error::ErrorInternalServerError("contest not bound"))?,
+                    submission,
+                    problem,
+                    judgement,
+                    test_case_judgements,
+                })
             }
             Err(e) => Err(e),
         })

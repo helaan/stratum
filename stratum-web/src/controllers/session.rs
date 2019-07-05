@@ -1,14 +1,14 @@
-use crate::util::render;
+use crate::template::TemplateContext;
 use crate::{pass, AppState};
 use actix_web::middleware::session::RequestSession;
 use actix_web::{error, http::Method, AsyncResponder, Error, Form, HttpRequest, Responder, Scope};
+use askama::Template;
 use diesel::prelude::*;
 use futures::future::Future;
 use serde::Deserialize;
 use stratum_db::models::{Session, User};
 use stratum_db::schema::{sessions, users};
 use stratum_db::Execute;
-use tera::Context;
 use uuid::Uuid;
 
 /** Responsible for session management
@@ -22,9 +22,16 @@ pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
         .route("/logout", Method::POST, logout)
 }
 
+#[derive(Template)]
+#[template(path = "session/login.html")]
+struct LoginFormTemplate {
+    ctx: TemplateContext,
+}
+
 pub fn login_form(req: HttpRequest<AppState>) -> impl Responder {
-    let ctx = Context::new();
-    render(&req, "session/login.html", ctx)
+    LoginFormTemplate {
+        ctx: TemplateContext::new(&req),
+    }
 }
 
 #[derive(Deserialize)]

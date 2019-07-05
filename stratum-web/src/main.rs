@@ -10,17 +10,15 @@ use dotenv::dotenv;
 use sentry_actix::SentryMiddleware;
 use std::env;
 use stratum_db::{create_pool, DbExecutor};
-use tera::{compile_templates, Tera};
 
 mod controllers;
 mod error_pages;
 mod middleware;
 mod multipart;
 mod pass;
-mod util;
+mod template;
 
 pub struct AppState {
-    pub template: Tera,
     pub db: Addr<DbExecutor>,
     pub location_id: i32,
 }
@@ -56,10 +54,7 @@ fn main() {
         .unwrap();
 
     let app = move || {
-        let templates = compile_templates!("./stratum-web/templates/**/*.html");
-
         let state = AppState {
-            template: templates,
             db: db_addr.clone(),
             location_id,
         };

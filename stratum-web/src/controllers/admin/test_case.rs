@@ -1,13 +1,13 @@
 use crate::multipart::parse_multipart;
-use crate::util::render;
+use crate::template::TemplateContext;
 use crate::AppState;
 use actix_web::{error, http::Method, AsyncResponder, HttpMessage, HttpRequest, Responder, Scope};
+use askama::Template;
 use diesel::prelude::*;
 use futures::future::Future;
 use stratum_db::models::{Problem, TestCase};
 use stratum_db::schema::{problems, test_cases};
 use stratum_db::Execute;
-use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
     scop.route("", Method::GET, index)
@@ -50,8 +50,23 @@ pub fn create(req: HttpRequest<AppState>) -> impl Responder {
     .responder()
 }
 
+#[derive(Template)]
+#[template(path = "admin/test_case/create.html")]
+struct CreateTemplate {
+    ctx: TemplateContext,
+}
+
 pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
-    render(&req, "admin/test_case/create.html", Context::new())
+    CreateTemplate {
+        ctx: TemplateContext::new(&req),
+    }
+}
+
+#[derive(Template)]
+#[template(path = "admin/test_case/index.html")]
+struct IndexTemplate {
+    ctx: TemplateContext,
+    test_cases: Vec<(TestCase, Problem)>,
 }
 
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
@@ -66,11 +81,10 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok(problem_statements) => {
-                let mut ctx = Context::new();
-                ctx.insert("test_cases", &problem_statements);
-                render(&req, "admin/test_case/index.html", ctx)
-            }
+            Ok(test_cases) => Ok(IndexTemplate {
+                ctx: TemplateContext::new(&req),
+                test_cases,
+            }),
             Err(e) => Err(e),
         })
         .responder()

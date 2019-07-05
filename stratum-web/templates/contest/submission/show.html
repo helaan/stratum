@@ -4,12 +4,12 @@
 
 <h1>Submission for problem {{problem.name}}</h1>
 
-<p>Score: {% if judgement.score %}{{judgement.score}}{% else %} Not given {% endif %}</p>
+<p>Score: {% match judgement.score %}{% when Some with (score) %}{{score}}{% when None %} Not given {% endmatch %}</p>
 
 {% for tcj in test_case_judgements %}
 <h2>Testcase {{ tcj.test_case_position }}</h2>
 {# HACK: prevent HTML injection #}
-<p>{{tcj.error | safe}}</p>
+<p>{{ tcj.error|safe }}</p>
 {% endfor %}
 
 {% endblock %}

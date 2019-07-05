@@ -28,8 +28,10 @@
 	</div>
 </form>
 
-<h1>Submissions from Team {{active_team.name}}:</h1>
-{% if submissions | length == 0 %}
+{% match ctx.team %}
+{% when Some with (team) %}
+<h1>Submissions from Team {{ team.name }}:</h1>
+{% if submissions.is_empty() %}
 <p>
 You have not yet submitted anything. Add your source code and the
 output for one of the problems using the form above and the judgement
@@ -45,27 +47,26 @@ will show up here.
 		</tr>
 	</thead>
 	<tbody>
-		{% for tup in submissions %}
-		{% set sub = tup[0] %}
-		{% set jm = tup[1] %}
+		{% for (sub, judgement) in submissions %}
 		<tr class="striped--light-gray">
 			<td>{{ sub.created_at }}</td>
-			<td>{{ hproblems[sub.problem_id].name }}</td>
+			<td>{{ problem_names.get(sub.problem_id.borrow()).unwrap() }}{# TODO BAD HACK #}</td>
 			<td>
 				<a href="/contest/{{ contest.short_name }}/submission/{{ sub.location_id }}/{{ sub.id }}">
-				{% if jm %}
+				{% match judgement %}
+				{% when Some with (jm) %}
 					{% if jm.status == 100 %}
-						Score: {{jm.score}}
-					{% elif jm.status == 110 %}
+						Score: {{jm.score.unwrap()}}
+					{% else if jm.status == 110 %}
 						Wrong Answer
-					{% elif jm.status == 200 %}
+					{% else if jm.status == 200 %}
 						Internal System Error
 					{% else %}
-						Unknown error code: {{ jm.status }}
+						Unknown error code: {{ jm.status }}}
 					{% endif %}
-				{% else %}
+				{% when None %}
 					Not judged yet
-				{% endif %}
+				{% endmatch %}
 				</a>
 			</td>
 		</tr>
@@ -73,5 +74,7 @@ will show up here.
 	</tbody>
 </table>
 {% endif %}
+{% when None %}
+{% endmatch %}
 
 {% endblock content %}

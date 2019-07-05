@@ -2,10 +2,7 @@
 {% block title %}Problem overview{% endblock title %}
 {% block content %}
 
-{% for tup_problem in problems %}
-	{% set cproblem = tup_problem.0.0 %}
-	{% set problem = tup_problem.0.1 %}
-	{% set problem_statements = tup_problem.1 %}
+{% for (cproblem, problem, problem_statements) in problems %}
 	<h3>{{ cproblem.label }}: {{ problem.name }}</h3>
 	{% for statement in problem_statements %}
 	<p><a href="/contest/{{ contest.short_name }}/problem/{{ statement.id }}" data-turbolinks="false">{{ statement.filename }}</a></p>

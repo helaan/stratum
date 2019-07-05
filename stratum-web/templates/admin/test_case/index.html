@@ -16,9 +16,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for tup in test_cases %}
-			{% set test_case = tup[0] %}
-			{% set problem = tup[1] %}
+		{% for (test_case, problem) in test_cases %}
 			<tr>
 				<td>{{ problem.id }}</td>
 				<td>{{ problem.name }}</td>

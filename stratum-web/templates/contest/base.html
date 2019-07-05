@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "../base.html" %}
 {% block top_menu_left %}
 <a class="black ph3 link" href="/contest/{{ contest.short_name }}">Scoreboard</a>
 <a class="black ph3 link" href="/contest/{{ contest.short_name }}/problem">Problems</a>
@@ -6,5 +6,5 @@
 {% endblock %}
 {% block top_menu_right %}
 <a class="black ph3 link" href="/">Back to contest list</a>
-{{ super() }}
+{% call super() %}
 {% endblock %}

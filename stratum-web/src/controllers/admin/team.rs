@@ -4,10 +4,12 @@
 //! - Edit teams
 //! - Remove teams (TODO)
 
-use crate::{util::render, AppState};
+use crate::template::TemplateContext;
+use crate::AppState;
 use actix_web::{
     error, http::Method, AsyncResponder, Error, Form, HttpRequest, Path, Responder, Scope,
 };
+use askama::Template;
 use diesel::prelude::*;
 use diesel::Insertable;
 use futures::future::Future;
@@ -15,7 +17,6 @@ use serde::Deserialize;
 use stratum_db::models::Team;
 use stratum_db::schema::teams;
 use stratum_db::Execute;
-use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
     scop.route("", Method::GET, index)
@@ -31,9 +32,16 @@ pub struct CreateTeam {
     name: String,
 }
 
+#[derive(Template)]
+#[template(path = "admin/team/create.html")]
+struct CreateFormTemplate {
+    ctx: TemplateContext,
+}
+
 pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
-    let ctx = Context::new();
-    render(&req, "admin/team/create.html", ctx)
+    CreateFormTemplate {
+        ctx: TemplateContext::new(&req),
+    }
 }
 
 pub fn create(req: HttpRequest<AppState>, form: Form<CreateTeam>) -> impl Responder {
@@ -53,6 +61,13 @@ pub fn create(req: HttpRequest<AppState>, form: Form<CreateTeam>) -> impl Respon
         .responder()
 }
 
+#[derive(Template)]
+#[template(path = "admin/team/index.html")]
+struct IndexTemplate {
+    ctx: TemplateContext,
+    teams: Vec<Team>,
+}
+
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
@@ -64,11 +79,10 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
         }))
         .from_err()
         .and_then(move |res: Result<Vec<Team>, Error>| match res {
-            Ok(teams) => {
-                let mut ctx = Context::new();
-                ctx.insert("teams", &teams);
-                render(&req, "admin/team/index.html", ctx)
-            }
+            Ok(teams) => Ok(IndexTemplate {
+                ctx: TemplateContext::new(&req),
+                teams,
+            }),
             Err(e) => Err(e),
         })
         .responder()
@@ -77,6 +91,13 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
 #[derive(Deserialize)]
 pub struct IdParams {
     id: i64,
+}
+
+#[derive(Template)]
+#[template(path = "admin/team/show.html")]
+struct ShowTemplate {
+    ctx: TemplateContext,
+    team: Team,
 }
 
 pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responder {
@@ -90,11 +111,10 @@ pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responde
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok(team) => {
-                let mut ctx = Context::new();
-                ctx.insert("team", &team);
-                render(&req, "admin/team/show.html", ctx)
-            }
+            Ok(team) => Ok(ShowTemplate {
+                ctx: TemplateContext::new(&req),
+                team,
+            }),
             Err(e) => Err(e),
         })
         .responder()

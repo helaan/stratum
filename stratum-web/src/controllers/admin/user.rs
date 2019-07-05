@@ -5,20 +5,22 @@
 //! - Remove users (TODO)
 
 use crate::pass::hash;
-use crate::{util::render, AppState};
+use crate::template::TemplateContext;
+use crate::AppState;
 use actix_web::{
     error, http::Method, AsyncResponder, Error, Form, HttpRequest, Path, Responder, Scope,
 };
+use askama::Template;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::{dsl::sql, sql_types::Timestamptz, AsChangeset, Insertable};
 use futures::future::Future;
 use serde::Deserialize;
+use std::borrow::Borrow;
 use std::collections::HashMap;
 use stratum_db::models::{Team, User};
 use stratum_db::schema::{sessions, teams, users};
 use stratum_db::Execute;
-use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
     scop.route("", Method::GET, index)
@@ -45,9 +47,16 @@ pub struct CreateUserForm {
     rights: i16,
 }
 
+#[derive(Template)]
+#[template(path = "admin/user/create.html")]
+struct CreateFormTemplate {
+    ctx: TemplateContext,
+}
+
 pub fn create_form(req: HttpRequest<AppState>) -> impl Responder {
-    let ctx = Context::new();
-    render(&req, "admin/user/create.html", ctx)
+    CreateFormTemplate {
+        ctx: TemplateContext::new(&req),
+    }
 }
 
 pub fn create(req: HttpRequest<AppState>, form: Form<CreateUserForm>) -> impl Responder {
@@ -74,6 +83,14 @@ pub fn create(req: HttpRequest<AppState>, form: Form<CreateUserForm>) -> impl Re
         .responder()
 }
 
+#[derive(Template)]
+#[template(path = "admin/user/index.html")]
+struct IndexTemplate {
+    ctx: TemplateContext,
+    users: Vec<(User, Option<Team>)>,
+    last_login_times: HashMap<i64, DateTime<Utc>>,
+}
+
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
     req.state()
         .db
@@ -93,12 +110,11 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok((users, last_login_times)) => {
-                let mut ctx = Context::new();
-                ctx.insert("users", &users);
-                ctx.insert("last_login_times", &last_login_times);
-                render(&req, "admin/user/index.html", ctx)
-            }
+            Ok((users, last_login_times)) => Ok(IndexTemplate {
+                ctx: TemplateContext::new(&req),
+                users,
+                last_login_times,
+            }),
             Err(e) => Err(e),
         })
         .responder()
@@ -107,6 +123,13 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
 #[derive(Deserialize)]
 pub struct IdParams {
     id: i64,
+}
+
+#[derive(Template)]
+#[template(path = "admin/user/show.html")]
+struct ShowTemplate {
+    ctx: TemplateContext,
+    user: User,
 }
 
 pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responder {
@@ -120,11 +143,10 @@ pub fn show(req: HttpRequest<AppState>, params: Path<IdParams>) -> impl Responde
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok(user) => {
-                let mut ctx = Context::new();
-                ctx.insert("user", &user);
-                render(&req, "admin/user/show.html", ctx)
-            }
+            Ok(user) => Ok(ShowTemplate {
+                ctx: TemplateContext::new(&req),
+                user,
+            }),
             Err(e) => Err(e),
         })
         .responder()

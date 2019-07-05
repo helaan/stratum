@@ -15,22 +15,21 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for arr in users %}
-		{% set user = arr[0] %}
-		{% set team = arr[1] %}
+		{% for (user, team_opt) in users %}
 		<tr>
 			<td>{{ user.id }}</td>
-			<td>{% if team %}<a href="/admin/team/{{team.id}}">{{team.name}}</a>{% endif %}</td>
+			<td>{% match team_opt %}{% when Some with (team) %}<a href="/admin/team/{{team.id}}">{{team.name}}</a>{% when None %}{% endmatch %}</td>
 			<td><a href="/admin/user/{{user.id}}">{{ user.username }}</a></td>
 			<td>{{ user.rights }}</td>
 			<td>{{ user.created_at }}</td>
 			<td>{{ user.updated_at }}</td>
 			<td>
-				{% if last_login_times[user.id] %}
-					{{ last_login_times[user.id] }}
-				{% else %}
+				{% match last_login_times.get(user.id.borrow()) %}
+				{% when Some with (login_time) %}
+					{{ login_time }}
+				{% when None %}
 			    		No logins yet
-				{% endif %}
+				{% endmatch %}
 			</td>
 		</tr>
 		{% endfor %}

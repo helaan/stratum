@@ -15,9 +15,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for tup in problem_statements %}
-			{% set statement = tup[0] %}
-			{% set problem = tup[1] %}
+		{% for (statement, problem) in problem_statements %}
 			<tr>
 				<td>{{ statement.id }}</td>
 				<td>{{ problem.name }}</td>

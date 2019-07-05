@@ -1,8 +1,9 @@
-use crate::util::render;
+use crate::template::{extract_contest, TemplateContext};
 use crate::AppState;
 use actix_web::{
     error, http::Method, AsyncResponder, Error, HttpRequest, HttpResponse, Path, Responder, Scope,
 };
+use askama::Template;
 use diesel::prelude::*;
 use diesel::BelongingToDsl;
 use futures::future::Future;
@@ -10,7 +11,6 @@ use serde::{Deserialize, Serialize};
 use stratum_db::models::{Contest, ContestProblem, Problem, ProblemStatement};
 use stratum_db::schema::{contest_problems, problem_statements, problems};
 use stratum_db::Execute;
-use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
     scop.route("", Method::GET, index)
@@ -25,6 +25,14 @@ struct LightProblemStatement {
     problem_id: i64,
     filename: String,
     mime_type: String,
+}
+
+#[derive(Template)]
+#[template(path = "contest/problem/index.html")]
+struct IndexTemplate {
+    ctx: TemplateContext,
+    contest: Contest,
+    problems: Vec<(ContestProblem, Problem, Vec<LightProblemStatement>)>,
 }
 
 pub fn index(req: HttpRequest<AppState>) -> impl Responder {
@@ -58,15 +66,17 @@ pub fn index(req: HttpRequest<AppState>) -> impl Responder {
                 .into_iter()
                 .zip(problems)
                 .zip(problem_statements)
-                .collect::<Vec<((ContestProblem, Problem), Vec<LightProblemStatement>)>>())
+                .map(|t| ((t.0).0, (t.0).1, t.1))
+                .collect())
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok(problems) => {
-                let mut ctx = Context::new();
-                ctx.insert("problems", &problems);
-                render(&req, "contest/problem/index.html", ctx)
-            }
+            Ok(problems) => Ok(IndexTemplate {
+                ctx: TemplateContext::new(&req),
+                contest: extract_contest(&req)
+                    .ok_or_else(|| error::ErrorInternalServerError("contest not bound"))?,
+                problems,
+            }),
             Err(e) => Err(e),
         })
         .responder()

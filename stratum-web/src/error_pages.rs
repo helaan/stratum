@@ -1,8 +1,8 @@
-use crate::util::render_string;
+use crate::template::TemplateContext;
 use crate::AppState;
 use actix_web::middleware::{ErrorHandlers, Response};
-use actix_web::{http, Error, HttpRequest, HttpResponse};
-use tera::Context;
+use actix_web::{error, http, Error, HttpRequest, HttpResponse};
+use askama::Template;
 
 pub fn register() -> ErrorHandlers<AppState> {
     ErrorHandlers::new()
@@ -10,22 +10,39 @@ pub fn register() -> ErrorHandlers<AppState> {
         .handler(http::StatusCode::INTERNAL_SERVER_ERROR, render_500)
 }
 
-pub fn render_404(req: &HttpRequest<AppState>, resp: HttpResponse) -> Result<Response, Error> {
-    render_error("error_pages/404.html", req, resp)
+#[derive(Template)]
+#[template(path = "error_pages/404.html")]
+struct Error404Template {
+    ctx: TemplateContext,
 }
 
-pub fn render_500(req: &HttpRequest<AppState>, resp: HttpResponse) -> Result<Response, Error> {
-    render_error("error_pages/500.html", req, resp)
+#[derive(Template)]
+#[template(path = "error_pages/500.html")]
+struct Error500Template {
+    ctx: TemplateContext,
 }
 
-pub fn render_error(
-    tpl: &str,
-    req: &HttpRequest<AppState>,
-    resp: HttpResponse,
-) -> Result<Response, Error> {
+fn render_404(req: &HttpRequest<AppState>, resp: HttpResponse) -> Result<Response, Error> {
+    render_error(
+        resp,
+        Error404Template {
+            ctx: TemplateContext::new(&req),
+        },
+    )
+}
+
+fn render_500(req: &HttpRequest<AppState>, resp: HttpResponse) -> Result<Response, Error> {
+    render_error(
+        resp,
+        Error500Template {
+            ctx: TemplateContext::new(&req),
+        },
+    )
+}
+
+pub fn render_error(resp: HttpResponse, tpl: impl Template) -> Result<Response, Error> {
+    let result = tpl.render().map_err(error::ErrorInternalServerError)?;
     let mut builder = resp.into_builder();
-    let ctx = Context::new();
-    let body = render_string(req, tpl, ctx)?;
-    let new_resp = builder.body(body);
+    let new_resp = builder.body(result);
     Ok(Response::Done(new_resp))
 }

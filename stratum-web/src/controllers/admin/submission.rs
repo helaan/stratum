@@ -1,17 +1,18 @@
-use crate::util::render;
+use crate::template::TemplateContext;
 use crate::AppState;
 use actix_web::{error, http::Method, AsyncResponder, HttpRequest, Path, Responder, Scope};
+use askama::Template;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use futures::future::Future;
 use serde::{Deserialize, Serialize};
+use std::borrow::Borrow;
 use std::collections::HashMap;
 use stratum_db::models::{Judgement, Problem, Submission, Team, TestCaseJudgement};
 use stratum_db::schema::{
     judgements, problems, submission_files, submissions, teams, test_case_judgements,
 };
 use stratum_db::Execute;
-use tera::Context;
 
 pub fn register(scop: Scope<AppState>) -> Scope<AppState> {
     scop.route("", Method::GET, index)
@@ -33,6 +34,17 @@ pub struct Utf8TestCaseJudgement {
     pub output: String,
     pub error: String,
     pub created_at: DateTime<Utc>,
+}
+
+#[derive(Template)]
+#[template(path = "admin/submission/show.html")]
+struct ShowTemplate {
+    ctx: TemplateContext,
+    filenames: Vec<String>,
+    judgements: Vec<(Judgement, Option<Utf8TestCaseJudgement>)>,
+    problem: Problem,
+    submission: Submission,
+    team: Team,
 }
 
 fn show(req: HttpRequest<AppState>, params: Path<IdLocationIdParams>) -> impl Responder {
@@ -84,18 +96,25 @@ fn show(req: HttpRequest<AppState>, params: Path<IdLocationIdParams>) -> impl Re
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok((sub, filenames, jms)) => {
-                let mut ctx = Context::new();
-                ctx.insert("submission", &sub.0);
-                ctx.insert("team", &sub.1);
-                ctx.insert("problem", &sub.2);
-                ctx.insert("filenames", &filenames);
-                ctx.insert("judgements", &jms);
-                render(&req, "admin/submission/show.html", ctx)
-            }
+            Ok(((submission, team, problem), filenames, judgements)) => Ok(ShowTemplate {
+                ctx: TemplateContext::new(&req),
+                filenames,
+                judgements,
+                problem,
+                submission,
+                team,
+            }),
             Err(e) => Err(e),
         })
         .responder()
+}
+
+#[derive(Template)]
+#[template(path = "admin/submission/index.html")]
+struct IndexTemplate {
+    ctx: TemplateContext,
+    submissions: Vec<Submission>,
+    judgements: HashMap<i64, HashMap<i32, Vec<Judgement>>>,
 }
 
 fn index(req: HttpRequest<AppState>) -> impl Responder {
@@ -123,12 +142,11 @@ fn index(req: HttpRequest<AppState>) -> impl Responder {
         }))
         .from_err()
         .and_then(move |res| match res {
-            Ok((subs, jms)) => {
-                let mut ctx = Context::new();
-                ctx.insert("submissions", &subs);
-                ctx.insert("judgements", &jms);
-                render(&req, "admin/submission/index.html", ctx)
-            }
+            Ok((submissions, judgements)) => Ok(IndexTemplate {
+                ctx: TemplateContext::new(&req),
+                submissions,
+                judgements,
+            }),
             Err(e) => Err(e),
         })
         .responder()

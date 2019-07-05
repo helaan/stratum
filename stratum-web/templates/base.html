@@ -18,22 +18,23 @@
 			</div>
 			<div class="fl v-mid w-50 tr-ns">
 			{% block top_menu_right %}
-				{% if active_user and active_user.rights >= 1000 %}
+			{% match ctx.user %}
+			{% when Some with (user) %}
+				{% if user.rights >= 1000 %}
 					<a class="black ph3 link" href="/admin">Admin Panel</a>
 				{% endif %}
-			{% endblock %}
-			{% if active_user %}
-				<span class="ph3 black">{{ active_user.username }}</span>
+				<span class="ph3 black">{{ user.username }}</span>
 				<form class="ph3 di" action="/session/logout" method="POST">
 					<input class="input-reset button-reset bn bg-inherit black pointer" type="submit" value="Log out">
 				</form>
-			{% else %}
+			{% when None %}
 				<a class="black ph3 link" href="/session/login">Log in</a>
-			{% endif %}
+			{% endmatch %}
+			{% endblock %}
 			</div>
 		</nav>
 	</header>
-	<div class="{% if layout_pagewidth %}{{ layout_pagewidth }}{% else %}mw9{% endif %} center pb4" id="content">
+	<div class="mw9 center pb4" id="content">
 		{% block content %}
 		{% endblock content %}
 	</div>
@@ -41,7 +42,7 @@
 		<div class="center mw9">
 			<span>
 			{% block footer %}
-			Page rendered at {{ now() | date(format="%d-%m-%Y %T") }} by Stratum {{ app_version }}
+			Page rendered at {{ ctx.render_time.to_rfc2822() }} by Stratum {{ env!("CARGO_PKG_VERSION") }}
 			{% endblock footer %}
 			</span>
 		</div>
