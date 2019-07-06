@@ -43,6 +43,7 @@
 			<span>
 			{% block footer %}
 			Page rendered at {{ ctx.render_time.to_rfc2822() }} by Stratum {{ env!("CARGO_PKG_VERSION") }}
+			(<a href="/legal">Legal</a>)
 			{% endblock footer %}
 			</span>
 		</div>

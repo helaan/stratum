@@ -3,6 +3,7 @@ name = "stratum-db"
 version = "0.1.0"
 authors = ["Henk van der Laan <opensource@henkvdlaan.com>"]
 edition = "2018"
+license = "AGPL-3.0-or-later"
 
 [dependencies]
 actix = "0.7"

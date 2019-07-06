@@ -3,6 +3,11 @@ name = "stratum-web"
 version = "0.1.0"
 authors = ["Henk van der Laan <opensource@henkvdlaan.com>"]
 edition = "2018"
+license = "AGPL-3.0-or-later"
+
+[build-dependencies]
+walkdir = "2"
+zip = "0.5"
 
 [dependencies]
 stratum-db = {path = "../stratum-db"}
